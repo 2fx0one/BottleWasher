@@ -21,7 +21,7 @@ GameObject:
   - component: {fileID: 4924707113421168}
   - component: {fileID: 212660341771623570}
   m_Layer: 0
-  m_Name: Sprite
+  m_Name: candy
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -35,7 +35,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4117731722775810}
-  - component: {fileID: 114364217661324648}
+  - component: {fileID: 114347530353035028}
+  - component: {fileID: 114862551493862210}
+  - component: {fileID: 114815684911335094}
   m_Layer: 0
   m_Name: PrefabNormal
   m_TagString: Untagged
@@ -70,7 +72,7 @@ Transform:
   m_Father: {fileID: 4117731722775810}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &114364217661324648
+--- !u!114 &114347530353035028
 MonoBehaviour:
   m_ObjectHideFlags: 1
   m_CorrespondingSourceObject: {fileID: 0}
@@ -82,6 +84,41 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   gameManager: {fileID: 0}
+--- !u!114 &114815684911335094
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1628445086468070}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b7fe5baca5da240b89b5670ab482d251, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  colorSprites:
+  - color: 0
+    sprite: {fileID: 21300000, guid: 5fdf0ab3dfbca2947b07fc8a2f0e04b0, type: 3}
+  - color: 1
+    sprite: {fileID: 21300000, guid: 2f5541ddc6d03394c9bb904306064249, type: 3}
+  - color: 2
+    sprite: {fileID: 21300000, guid: 6b892a88f400a8c49b93e195ca493ca5, type: 3}
+  - color: 3
+    sprite: {fileID: 21300000, guid: 38a0ee623eec0b44380f9015c44268ea, type: 3}
+  - color: 4
+    sprite: {fileID: 21300000, guid: 32d521ee0446b5a478739e80dec7dfd9, type: 3}
+  - color: 5
+    sprite: {fileID: 21300000, guid: c0521331ff0265648aca5470fa6c1e4e, type: 3}
+--- !u!114 &114862551493862210
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1628445086468070}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7576379a234244d5faf800a8826c9366, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!212 &212660341771623570
 SpriteRenderer:
   m_ObjectHideFlags: 1

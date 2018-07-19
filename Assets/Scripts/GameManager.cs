@@ -26,7 +26,7 @@ public class GameManager : MonoBehaviour {
 
     public GameObject gridPrefab;
 
-    public enum CandyType
+    public enum CandyType //基础分类
     {
         EMPTY,
         NORMAL,
@@ -77,10 +77,21 @@ public class GameManager : MonoBehaviour {
 		{
 			for (int y = 0; y < yRow; y++)
 			{
-				GameObject candy = Instantiate(candyPrefabDict[CandyType.NORMAL], CorrectPostion(x, y), Quaternion.identity);
+				GameObject candy = Instantiate(candyPrefabDict[CandyType.NORMAL], Vector3.zero, Quaternion.identity);
 				candy.transform.SetParent(transform);
 				candies[x, y]  = candy.transform.GetComponent<CandyBase>();
 				candies[x, y].Init(x, y, this, CandyType.NORMAL);
+
+				if (candies[x, y].HasMove())
+				{
+					Debug.Log("xxx");
+					candies[x, y].CandyMoved.Move(x, y);
+				}
+
+				if (candies[x, y].HasColor())
+				{
+					candies[x, y].Color.SetColor((CandyCategory.ColorType)(Random.Range(0, candies[x, y].Color.NumColors)));
+				}
 			}
 			
 		}
