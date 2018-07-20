@@ -79,5 +79,20 @@ public class CandyObject : MonoBehaviour
 		this._gameManager = gameManager;
 		this._candyType = candyType;
 	}
-	
+
+	private void OnMouseEnter()
+	{
+		throw new System.NotImplementedException();
+	}
+
+	private void OnMouseDown()
+	{
+		throw new System.NotImplementedException();
+	}
+
+
+	private void OnMouseUp()
+	{
+		throw new System.NotImplementedException();
+	}
 }
