@@ -4,18 +4,18 @@ using UnityEngine;
 
 public class CandyMoved : MonoBehaviour
 {
-	private CandyBase _candyBase;
+	private CandyObject _candyObject;
 
 	private void Awake()
 	{
-		_candyBase = GetComponent<CandyBase>();
+		_candyObject = GetComponent<CandyObject>();
 	}
 
 	public void Move(int x, int y)
 	{
-		_candyBase.X = x;
-		_candyBase.Y = y;
-        _candyBase.transform.position = _candyBase.gameManager.CorrectPostion(x, y);
+		_candyObject.X = x;
+		_candyObject.Y = y;
+        _candyObject.transform.position = _candyObject._gameManager.CorrectPostion(x, y);
 	}
 	
 	

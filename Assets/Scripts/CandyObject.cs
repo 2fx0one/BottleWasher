@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class CandyBase : MonoBehaviour
+public class CandyObject : MonoBehaviour
 {
 	
 	private int _x;
@@ -39,7 +39,7 @@ public class CandyBase : MonoBehaviour
 	}
 
 	[HideInInspector]
-	public GameManager gameManager;
+	public GameManager _gameManager;
 
 
 	private CandyMoved _candyMoved;
@@ -76,7 +76,7 @@ public class CandyBase : MonoBehaviour
 	{
 		this._x = x;
 		this._y = y;
-		this.gameManager = gameManager;
+		this._gameManager = gameManager;
 		this._candyType = candyType;
 	}
 	

@@ -144,6 +144,8 @@ MonoBehaviour:
   yRow: 10
   gridPrefab: {fileID: 1639393122733468, guid: c3b1f09c8babf465db477002bd2586f8, type: 2}
   CandyPrefabs:
+  - candyType: 0
+    prefab: {fileID: 1393796430002650, guid: 14fa8a91a6331497499c73ff01ba94e1, type: 2}
   - candyType: 1
     prefab: {fileID: 1628445086468070, guid: 6257f09ce10ec46e194ff16fc2ca4979, type: 2}
 --- !u!4 &100818572
@@ -157,7 +159,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 1
+  m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &519420028
 GameObject:
@@ -309,5 +311,5 @@ Transform:
   m_LocalScale: {x: 1.5875, y: 0.45718747, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 2
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}

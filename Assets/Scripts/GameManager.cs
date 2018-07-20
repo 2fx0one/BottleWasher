@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.IO.IsolatedStorage;
 using UnityEngine;
 
 public class GameManager : MonoBehaviour {
@@ -48,7 +49,7 @@ public class GameManager : MonoBehaviour {
 
     public CandyPrefab[] CandyPrefabs;
 
-	private CandyBase[,] candies; //二维数组
+	private CandyObject[,] candies; //二维数组
 
 	// Use this for initialization
 	void Start () 
@@ -72,30 +73,124 @@ public class GameManager : MonoBehaviour {
         }
 		
 		//candy init
-		candies = new CandyBase[xCol, yRow];
+		candies = new CandyObject[xCol, yRow];
 		for (int x = 0; x < xCol; x++)
 		{
 			for (int y = 0; y < yRow; y++)
 			{
-				GameObject candy = Instantiate(candyPrefabDict[CandyType.NORMAL], Vector3.zero, Quaternion.identity);
-				candy.transform.SetParent(transform);
-				candies[x, y]  = candy.transform.GetComponent<CandyBase>();
-				candies[x, y].Init(x, y, this, CandyType.NORMAL);
-
-				if (candies[x, y].HasMove())
-				{
-					Debug.Log("xxx");
-					candies[x, y].CandyMoved.Move(x, y);
-				}
-
-				if (candies[x, y].HasColor())
-				{
-					candies[x, y].Color.SetColor((CandyCategory.ColorType)(Random.Range(0, candies[x, y].Color.NumColors)));
-				}
+				createCandy(x, y, CandyType.EMPTY);
+//				GameObject candy = Instantiate(candyPrefabDict[CandyType.NORMAL], Vector3.zero, Quaternion.identity);
+//				candy.transform.SetParent(transform);
+//				candies[x, y]  = candy.transform.GetComponent<CandyBase>();
+//				candies[x, y].Init(x, y, this, CandyType.NORMAL);
+//
+//				if (candies[x, y].HasMove())
+//				{
+//					candies[x, y].CandyMoved.Move(x, y);
+//				}
+//
+//				if (candies[x, y].HasColor())
+//				{
+//					candies[x, y].Color.SetColor((CandyCategory.ColorType)(Random.Range(0, candies[x, y].Color.NumColors)));
+//				}
 			}
 			
 		}
+
+		FillAll();
+
+	}
+
+	public CandyObject createCandy(int x, int y, CandyType type)
+	{
+		GameObject candy = Instantiate(candyPrefabDict[type], CorrectPostion(x, y), Quaternion.identity);
 		
+		//设置父对象
+		candy.transform.parent = transform;
+		
+		//放入二维数组
+		candies[x, y]  = candy.transform.GetComponent<CandyObject>();
+		candies[x, y].Init(x, y, this, type);
+
+		return candies[x, y];
+
+//		if (candies[x, y].HasMove())
+//		{
+//			candies[x, y].CandyMoved.Move(x, y);
+//		}
+//
+//		if (candies[x, y].HasColor())
+//		{
+//			candies[x, y].Color.SetColor((CandyCategory.ColorType)(Random.Range(0, candies[x, y].Color.NumColors)));
+//		}
+		
+
+	}
+
+	public void FillAll()
+	{
+		while (fill())
+		{
+			
+		}
+	}
+
+	//分步填充
+	public bool fill()
+	{
+		//单次填充是否完成
+		bool filledNotFinished = false;
+		for (int y = yRow-2; y >= 0; y--)
+		{
+			for (int x = 0; x < xCol; x++)
+			{
+				//当前元素位置的对象
+				CandyObject candy = candies[x, y];
+				if (candy.HasMove())
+				{
+					CandyObject below = candies[x, y + 1];
+
+					if ( below.CandyType == CandyType.EMPTY)
+					{
+						candy.CandyMoved.Move(x, y+1);
+						candies[x, y + 1] = candy;
+						createCandy(x, y, CandyType.EMPTY);
+						filledNotFinished = true;
+					}
+				}
+				
+			}
+		}
+		
+		//最上排特殊情况
+//		int y = -1;
+		for (int x = 0; x < xCol; x++)
+		{
+			CandyObject candy = candies[x, 0];
+			
+			if (candy.CandyType == CandyType.EMPTY)
+			{
+				GameObject o = Instantiate(candyPrefabDict[CandyType.NORMAL], CorrectPostion(x, -1), Quaternion.identity);
+				//设置父对象
+				o.transform.parent = transform;
+
+				CandyObject newCandy = o.GetComponent<CandyObject>();
+				candies[x, 0] = newCandy;
+				newCandy.Init(x, -1, this, CandyType.NORMAL);
+				newCandy.CandyMoved.Move(x, 0);
+				newCandy.Color.SetColor((CandyCategory.ColorType)Random.Range(0, newCandy.Color.NumColors));
+				filledNotFinished = true;
+				
+//				candies[x, 0] = o.GetComponent<CandyObject>();
+//				candies[x, 0].Init(x, -1, this, CandyType.NORMAL);
+//				candies[x, 0].CandyMoved.Move(x, 0);
+//				candies[x, 0].Color.SetColor((CandyCategory.ColorType)Random.Range(0, candies[x, 0].Color.NumColors));
+//				filledNotFinished = true;
+			}
+
+		}
+
+		return filledNotFinished;
 	}
 	
 	// Update is called once per frame
