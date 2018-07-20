@@ -52,7 +52,9 @@ public class GameManager : MonoBehaviour {
     private CandyObject[,] candies; //二维数组
 
     public float fillTime;
-	
+
+    private CandyObject pressedCandy;
+    private CandyObject enteredCandy;
     // Use this for initialization
     void Start () 
     {
@@ -255,7 +257,7 @@ public class GameManager : MonoBehaviour {
                o1.Y == o2.Y && Mathf.Abs(o1.X - o2.X) == 1;
     }
 
-    private void exchangeCandyObjectPosition(CandyObject o1, CandyObject o2)
+    private void ExchangeCandyObjectPosition(CandyObject o1, CandyObject o2)
     {
         if (o1.HasMove() && o2.HasMove())
         {
@@ -265,10 +267,31 @@ public class GameManager : MonoBehaviour {
             int tempX = o1.X;
             int tempY = o1.Y;
             o1.CandyMoved.Move(o2.X, o2.Y, fillTime);
-            
             o2.CandyMoved.Move(tempX, tempY, fillTime);
             
         }
-        
     }
+
+    public void PressCandy(CandyObject o)
+    {
+        pressedCandy = o;
+    }
+
+    public void EnteredCandy(CandyObject o)
+    {
+        enteredCandy = o; 
+    }
+
+    public void ReleaseCandy()
+    {
+        if (IsNeighbour(pressedCandy, enteredCandy))
+        {
+            ExchangeCandyObjectPosition(pressedCandy, enteredCandy);
+        }
+    }
+
+//    private void OnMouseDown()
+//    {
+//        throw new System.NotImplementedException();
+//    }
 }

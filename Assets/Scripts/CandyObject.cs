@@ -82,17 +82,23 @@ public class CandyObject : MonoBehaviour
 
 	private void OnMouseEnter()
 	{
-		throw new System.NotImplementedException();
+		Debug.Log("enter");
+		_gameManager.EnteredCandy(this);
+//		throw new System.NotImplementedException();
 	}
-
+	
 	private void OnMouseDown()
 	{
-		throw new System.NotImplementedException();
+//		Destroy(this.gameObject);
+		Debug.Log("down");
+		_gameManager.PressCandy(this);
+//		throw new System.NotImplementedException();
 	}
-
 
 	private void OnMouseUp()
 	{
-		throw new System.NotImplementedException();
+		Debug.Log("up");
+		_gameManager.ReleaseCandy();
+//		throw new System.NotImplementedException();
 	}
 }
