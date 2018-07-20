@@ -148,6 +148,9 @@ MonoBehaviour:
     prefab: {fileID: 1393796430002650, guid: 14fa8a91a6331497499c73ff01ba94e1, type: 2}
   - candyType: 1
     prefab: {fileID: 1628445086468070, guid: 6257f09ce10ec46e194ff16fc2ca4979, type: 2}
+  - candyType: 2
+    prefab: {fileID: 1708681370023176, guid: 62092c0c54db64afeb34fd7a91a6e682, type: 2}
+  fillTime: 0.1
 --- !u!4 &100818572
 Transform:
   m_ObjectHideFlags: 0
