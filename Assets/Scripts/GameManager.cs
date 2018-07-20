@@ -131,14 +131,36 @@ public class GameManager : MonoBehaviour {
 				{
 					CandyObject below = candies[x, y + 1];
 
-					if ( below.CandyType == CandyType.EMPTY)
+					if ( below.CandyType == CandyType.EMPTY) //正下方 是空的
 					{
 						candy.CandyMoved.Move(x, y+1, fillTime);
 						candies[x, y + 1] = candy;
 						createCandy(x, y, CandyType.EMPTY);
 						filledNotFinished = true;
-					}
-				}
+                    }
+				} else {
+                    for(int down = -1; down <=1; down++) 
+                    {
+                        if (down != 0) 
+                        {
+                            int downX = x + down;
+	                        if (downX >= 0 && downX < xCol)
+	                        {
+		                        CandyObject downCandy = candies[downX, y + 1]; 
+		                        if (downCandy.CandyType == CandyType.EMPTY)
+		                        {
+			                        bool canfill = true;
+			                        //向上
+			                        for (int aboveY = 0; aboveY >= 0 ; aboveY--)
+			                        {
+				                        CandyOb
+			                        }
+		                        }
+	                        }
+                        }
+                    }
+
+                }
 				
 			}
 		}
