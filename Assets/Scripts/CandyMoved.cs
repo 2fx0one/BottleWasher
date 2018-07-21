@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+//移动组件
 public class CandyMoved : MonoBehaviour
 {
 	private CandyObject _candyObject;
@@ -29,6 +30,7 @@ public class CandyMoved : MonoBehaviour
 
 	private IEnumerator MoveCoroutine(int x, int y, float time)
 	{
+		//把当前组件的candy的X Y 更新
 		_candyObject.X = x;
 		_candyObject.Y = y;
 
