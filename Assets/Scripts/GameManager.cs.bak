@@ -368,9 +368,4 @@ public class GameManager : MonoBehaviour {
             ExchangeCandyObjectPosition(pressedCandy, enteredCandy);
         }
     }
-
-//    private void OnMouseDown()
-//    {
-//        throw new System.NotImplementedException();
-//    }
 }
