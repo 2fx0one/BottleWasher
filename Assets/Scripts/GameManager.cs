@@ -168,6 +168,8 @@ public class GameManager : MonoBehaviour {
                         continue;
                     }
 
+            
+                    
                     //右下
                     CandyObject belowRight = BelowRightCandy(currentMapX, currentMapY);
                     //在左下位置 向上查找 如果找到一个非空且不可移动的.那么就表示可以移动到改位置
@@ -180,15 +182,28 @@ public class GameManager : MonoBehaviour {
                         filledFinished = false;
                         continue;
                     }
-                    CandyObject right = RightCandy(currentMapX, currentMapY);
+                    
+                    CandyObject right = BelowRightCandy(currentMapX, currentMapY);
+                    
+                    //在右位置 向上查找 如果找到一个非空且不可移动的.那么就表示可以移动到改位置
                     if (CanFindBarrierAbove(right))
                     {
                         currentCandy.CandyMoved.MoveRight(fillTime);
                         Destroy(right.gameObject);
                         createCandy(currentMapX, currentMapY, CandyType.EMPTY);
+
                         filledFinished = false;
                         continue;
                     }
+//                    CandyObject right = RightCandy(currentMapX, currentMapY);
+//                    if (CanFindBarrierAbove(right))
+//                    {
+//                        currentCandy.CandyMoved.MoveRight(fillTime);
+//                        Destroy(right.gameObject);
+//                        createCandy(currentMapX, currentMapY, CandyType.EMPTY);
+//                        filledFinished = false;
+//                        continue;
+//                    }
 
                 }
 
@@ -297,7 +312,7 @@ public class GameManager : MonoBehaviour {
         {
             int x = currentCandy.X;
             int y = currentCandy.Y;
-            for (int aboveY = y-1; aboveY >= 0; aboveY--)
+            for (int aboveY = y; aboveY >= 0; aboveY--)
             {
                 //向上遍历
                 CandyObject candyAbove = candies[x, aboveY];
