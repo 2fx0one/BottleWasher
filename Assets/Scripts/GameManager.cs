@@ -137,7 +137,7 @@ public class GameManager : MonoBehaviour {
 //                    if (BelowDirectly(currentMapX, currentMapY))
                     {
                         currentCandy.CandyMoved.MoveDown(currentMapX, currentMapY, fillTime); //动画和基础组件上更新位置
-//                        Destroy(belowDirectly.gameObject); //删除下方
+                        Destroy(belowDirectly.gameObject); //删除下方
                         createCandy(currentMapX, currentMapY, CandyType.EMPTY); //创建空位
 
                         filledFinished = false; //填充未结束。还有空位
@@ -152,7 +152,7 @@ public class GameManager : MonoBehaviour {
                         CanFindBarrierAbove(belowLeft.X, belowLeft.Y))
                     {
                         currentCandy.CandyMoved.MoveDownLeft(currentMapX, currentMapY, fillTime);
-//                        Destroy(belowLeft.gameObject);
+                        Destroy(belowLeft.gameObject);
                         createCandy(currentMapX, currentMapY, CandyType.EMPTY);
                         filledFinished = false;
                         continue;
@@ -165,7 +165,7 @@ public class GameManager : MonoBehaviour {
                         CanFindBarrierAbove(belowRight.X, belowRight.Y))
                     {
                         currentCandy.CandyMoved.MoveDownRight(currentMapX, currentMapY, fillTime);
-//                        Destroy(belowRight.gameObject);
+                        Destroy(belowRight.gameObject);
                         createCandy(currentMapX, currentMapY, CandyType.EMPTY);
 
                         filledFinished = false;
@@ -188,21 +188,10 @@ public class GameManager : MonoBehaviour {
 			
             if (emptyCandy.CandyType == CandyType.EMPTY)
             {
-                Debug.Log("asdf");
+                Destroy(emptyCandy.gameObject);
                 CandyObject fall = createCandy(x, -1, CandyType.NORMAL);
                 fall.CandyMoved.MoveTo(x, 0, fillTime);
-                
-//                GameObject o = Instantiate(candyPrefabDict[CandyType.NORMAL], CorrectPostion(x, -1), Quaternion.identity);
-//                //设置父对象
-//                o.transform.parent = transform;
-//
-//                CandyObject newCandy = o.GetComponent<CandyObject>();
-////                candies[x, 0] = newCandy;
-//                newCandy.Init(x, -1, this, CandyType.NORMAL);
-//                newCandy.Color.SetColor((CandyCategory.ColorType)Random.Range(0, newCandy.Color.NumColors));
-//                
-//                newCandy.CandyMoved.MoveTo(x, 0, fillTime);
-                
+               
                 filledFinished = false;
             }
 
@@ -215,25 +204,25 @@ public class GameManager : MonoBehaviour {
     public CandyObject createCandy(int x, int y, CandyType type)
     {
         GameObject candy = Instantiate(candyPrefabDict[type], CorrectPostion(x, y), Quaternion.identity);
-		
         //设置父对象
         candy.transform.parent = transform;
-		
-        
         CandyObject create = candy.transform.GetComponent<CandyObject>();
         create.Init(x, y, this, type);
+        
         //放入二维数组
-        if (y == -1) //最上层,需要随机设置颜色
+        if (y < 0) 
         {
+            //最上层的天空中,需要随机设置颜色 且不要放到地图数组中!
             create.Color.SetColor((CandyCategory.ColorType) Random.Range(0, create.Color.NumColors));
-            return create;
         }
         else
         {
+            //放到数组中
             candies[x, y] = create;
-            return candies[x, y];
             
         }
+
+        return create;
 
 
     }
@@ -326,7 +315,7 @@ public class GameManager : MonoBehaviour {
 
 //        Debug.Log("UpdateCandyPositionInMap x = " + x + "  y=" + y);
 //        Debug.Log("UpdateCandyPositionInMap x = " + o.X + "  y=" + o.Y);
-        Destroy(candies[x, y].gameObject);
+//        Destroy(candies[x, y].gameObject);
         candies[x, y] = o;
         o.X = x;
         o.Y = y;
