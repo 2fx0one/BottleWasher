@@ -11,10 +11,10 @@ public class CandyObject : MonoBehaviour
 		get { return _x; }
 		set
 		{
-            if (HasMove())
-			{
+//            if (HasMove())
+//			{
 				_x = value;
-			}
+//			}
 		}
 	}
 
@@ -24,10 +24,10 @@ public class CandyObject : MonoBehaviour
 		get { return _y; }
 		set
 		{
-			if (HasMove())
-			{
+//			if (HasMove())
+//			{
 				_y = value;
-			}
+//			}
 		}
 	}
 
@@ -79,6 +79,7 @@ public class CandyObject : MonoBehaviour
 		this._gameManager = gameManager;
 		this._candyType = candyType;
 	}
+	
 
 	private void OnMouseEnter()
 	{
