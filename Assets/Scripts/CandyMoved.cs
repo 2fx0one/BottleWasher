@@ -33,6 +33,10 @@ public class CandyMoved : MonoBehaviour
 	
     public void MoveTo(int x, int y, float time)
     {
+        //逻辑更新 地图上的位置
+        GameManager.Instance.UpdateCandyPositionInMap(_candyObject, x, y);
+
+        //开始动画
         if (moveCoroutine != null)
         {
             StopCoroutine(moveCoroutine);
@@ -40,20 +44,13 @@ public class CandyMoved : MonoBehaviour
 
         moveCoroutine = MoveCoroutine(x, y, time);
         StartCoroutine(moveCoroutine);
-//		_candyObject.X = x;
-//		_candyObject.Y = y;
-//        _candyObject.transform.position = _candyObject._gameManager.CorrectPostion(x, y);
     }
 
     private IEnumerator MoveCoroutine(int x, int y, float time)
     {
-        //把当前组件的candy的X Y 更新
-        _candyObject.X = x;
-        _candyObject.Y = y;
-        _candyObject._gameManager.UpdateCandyPositionInMap(_candyObject);
-
+        //动画处理
         Vector3 startPosition = transform.position;
-        Vector3 endPosition = _candyObject._gameManager.CorrectPostion(x, y);
+        Vector3 endPosition = GameManager.Instance.CorrectPostion(x, y);
 
         for (float t = 0; t < time; t += Time.deltaTime)
         {
@@ -61,11 +58,8 @@ public class CandyMoved : MonoBehaviour
                 = Vector3.Lerp(startPosition, endPosition, t / time);
             yield return 0; //每帧
         }
-		
         //保证位置一定对。
-        _candyObject.transform.position = _candyObject._gameManager.CorrectPostion(x, y);
-        
-        //更新地图上的位置
+        _candyObject.transform.position = GameManager.Instance.CorrectPostion(x, y);
     }
 	
 	
