@@ -93,13 +93,13 @@ public class GameManager : MonoBehaviour {
         Destroy(candies[6, 4].gameObject);
         Destroy(candies[7, 4].gameObject);
         Destroy(candies[8, 4].gameObject);
-//        Destroy(candies[9, 4].gameObject);
+        Destroy(candies[9, 4].gameObject);
         createCandy(4, 4, CandyType.BARRIER);
         createCandy(5, 4, CandyType.BARRIER);
         createCandy(6, 4, CandyType.BARRIER);
         createCandy(7, 4, CandyType.BARRIER);
         createCandy(8, 4, CandyType.BARRIER);
-//        createCandy(9, 4, CandyType.BARRIER);
+        createCandy(9, 4, CandyType.BARRIER);
 
 //		FillAll();
         StartCoroutine(FillAll());
@@ -132,11 +132,11 @@ public class GameManager : MonoBehaviour {
                 if (currentCandy.HasMove())
                 {
                     //正下方 必须是空的.才能移动过去
-                    CandyObject belowDirectly = BelowDirectly(currentMapX, currentMapY);
+                    CandyObject belowDirectly = BelowDirectlyCandy(currentMapX, currentMapY);
                     if (belowDirectly != null && belowDirectly.CandyType == CandyType.EMPTY) //正下方 是空的
 //                    if (BelowDirectly(currentMapX, currentMapY))
                     {
-                        currentCandy.CandyMoved.MoveDown(currentMapX, currentMapY, fillTime); //动画和基础组件上更新位置
+                        currentCandy.CandyMoved.MoveDown(fillTime); //动画和基础组件上更新位置
                         Destroy(belowDirectly.gameObject); //删除下方
                         createCandy(currentMapX, currentMapY, CandyType.EMPTY); //创建空位
 
@@ -144,14 +144,24 @@ public class GameManager : MonoBehaviour {
                         continue;
                     }
                     
+                    //TODO 左右两边
+                    CandyObject left = LeftCandy(currentMapX, currentMapY);
+                    if (CanFindBarrierAbove(left))
+                    {
+                        currentCandy.CandyMoved.MoveLeft(fillTime);
+                        Destroy(left.gameObject);
+                        createCandy(currentMapX, currentMapY, CandyType.EMPTY);
+                        filledFinished = false;
+                        continue;
+                    }
+                    
                     //下方不是空的时，检查左下和右下
                     //左下
-                    CandyObject belowLeft = BelowLeft(currentMapX, currentMapY);
+                    CandyObject belowLeft = BelowLeftCandy(currentMapX, currentMapY);
                     //向上查找 如果找到一个非空且不可移动的.那么就表示可以移动到改位置
-                    if (belowLeft != null && belowLeft.CandyType == CandyType.EMPTY &&
-                        CanFindBarrierAbove(belowLeft.X, belowLeft.Y))
+                    if (CanFindBarrierAbove(belowLeft))
                     {
-                        currentCandy.CandyMoved.MoveDownLeft(currentMapX, currentMapY, fillTime);
+                        currentCandy.CandyMoved.MoveDownLeft(fillTime);
                         Destroy(belowLeft.gameObject);
                         createCandy(currentMapX, currentMapY, CandyType.EMPTY);
                         filledFinished = false;
@@ -159,18 +169,27 @@ public class GameManager : MonoBehaviour {
                     }
 
                     //右下
-                    CandyObject belowRight = BelowRight(currentMapX, currentMapY);
+                    CandyObject belowRight = BelowRightCandy(currentMapX, currentMapY);
                     //在左下位置 向上查找 如果找到一个非空且不可移动的.那么就表示可以移动到改位置
-                    if (belowRight != null && belowRight.CandyType == CandyType.EMPTY &&
-                        CanFindBarrierAbove(belowRight.X, belowRight.Y))
+                    if (CanFindBarrierAbove(belowRight))
                     {
-                        currentCandy.CandyMoved.MoveDownRight(currentMapX, currentMapY, fillTime);
+                        currentCandy.CandyMoved.MoveDownRight(fillTime);
                         Destroy(belowRight.gameObject);
                         createCandy(currentMapX, currentMapY, CandyType.EMPTY);
 
                         filledFinished = false;
                         continue;
                     }
+                    CandyObject right = RightCandy(currentMapX, currentMapY);
+                    if (CanFindBarrierAbove(right))
+                    {
+                        currentCandy.CandyMoved.MoveRight(fillTime);
+                        Destroy(right.gameObject);
+                        createCandy(currentMapX, currentMapY, CandyType.EMPTY);
+                        filledFinished = false;
+                        continue;
+                    }
+
                 }
 
                 ///当前元素的正下方
@@ -227,7 +246,7 @@ public class GameManager : MonoBehaviour {
 
     }
     
-    //正下方位置
+    //当前地图位置中
     private CandyObject CurrentCandy(int x, int y)
     {
         if (0 <= x && x < xCol && 0 <= y && y<yRow)
@@ -239,60 +258,58 @@ public class GameManager : MonoBehaviour {
 
     
     //正下方位置
-    private CandyObject BelowDirectly(int x, int y)
+    private CandyObject BelowDirectlyCandy(int x, int y)
     {     
-        int belowX = x;
-        int belowY = y + 1;
-//        Debug.Log(belowX + " " + belowY);
-        return CurrentCandy(belowX, belowY);
-//        CandyObject belowDirectly =  CurrentCandy(belowX, belowY);
-//        return belowDirectly != null && belowDirectly.CandyType == CandyType.EMPTY;
+        return CurrentCandy(x, y+1);
+    }
+    
+  
+    //左
+    private CandyObject LeftCandy(int x, int y)
+    {
+        return CurrentCandy(x-1, y);
+    }
+    
+    //左下
+    private CandyObject BelowLeftCandy(int x, int y)
+    {
+        return CurrentCandy(x-1, y+1);
     }
     
     //右下
-    private CandyObject BelowRight(int x, int y)
+    private CandyObject BelowRightCandy(int x, int y)
     {
-        int belowX = x + 1;
-        int belowY = y + 1;
-//        Debug.Log(belowX + " " + belowY);
-        return CurrentCandy(belowX, belowY);
-//        return x >= xCol || y >= yRow ? null : candies[belowX, belowY];
-//        int x = o.X + 1;
-//        int y = o.Y + 1;
-//        Debug.Log(x + " " + y);
-//        return x >= xCol || y >= yRow ? null : candies[x, y];
+        return CurrentCandy(x+1, y+1);
     }
 
-    //左下
-    private CandyObject BelowLeft(int x, int y)
+    //右下
+    private CandyObject RightCandy(int x, int y)
     {
-        int belowX = x - 1;
-        int belowY = y + 1;
-//        Debug.Log(belowX + " " + belowY);
-        return CurrentCandy(belowX, belowY);
-//        return x < 0 || y >= yRow ? null : candies[belowX, belowY];
-//        int x = o.X - 1;
-//        int y = o.Y + 1;
-//        return x < 0 || y >= yRow ? null : candies[x, y];
+        return CurrentCandy(x+1, y);
     }
 
 
     
-    //从该坐标 向上查找,找到一个Barrier 阻挡类型的
-    private bool CanFindBarrierAbove(int x, int y)
+    //从该糖果坐标 向上查找,找到一个Barrier 阻挡类型的
+    private bool CanFindBarrierAbove(CandyObject currentCandy)
     {
-        for (int aboveY = y; aboveY >= 0; aboveY--)
+        if (currentCandy != null && currentCandy.CandyType == CandyType.EMPTY)
         {
-            //向上遍历
-            CandyObject candyAbove = candies[x, aboveY];
-//            if (!candyAbove.HasMove()) //找到可以不移动的
-//            {
-//                return true;
-//            }
-//            
-            if (candyAbove.CandyType == CandyType.BARRIER)
+            int x = currentCandy.X;
+            int y = currentCandy.Y;
+            for (int aboveY = y-1; aboveY >= 0; aboveY--)
             {
-                return true;
+                //向上遍历
+                CandyObject candyAbove = candies[x, aboveY];
+                //            if (!candyAbove.HasMove()) //找到可以不移动的
+                //            {
+                //                return true;
+                //            }
+                //            
+                if (candyAbove.CandyType == CandyType.BARRIER)
+                {
+                    return true;
+                }
             }
         }
 

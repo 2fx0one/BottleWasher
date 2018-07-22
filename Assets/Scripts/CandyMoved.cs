@@ -15,20 +15,32 @@ public class CandyMoved : MonoBehaviour
     }
 
     //向下 移动一格
-    public void MoveDown(int x, int y, float time)
+    public void MoveDown(float fillTime)
     {
-        MoveTo(x, y+1, time);	
+        MoveTo(_candyObject.X, _candyObject.Y+1, fillTime);	
+    }
+    
+    //左
+    public void MoveLeft(float fillTime)
+    {
+        MoveTo(_candyObject.X-1, _candyObject.Y, fillTime);	
     }
 	
     //向左下 移动一格
-    public void MoveDownLeft(int x, int y, float time)
+    public void MoveDownLeft( float fillTime)
     {
-        MoveTo(x-1, y+1, time);	
+        MoveTo(_candyObject.X-1, _candyObject.Y+1, fillTime);	
     }
     //向右下 移动一格
-    public void MoveDownRight(int x, int y, float time)
+    public void MoveDownRight( float fillTime)
     {
-        MoveTo(x+1, y+1, time);	
+        MoveTo(_candyObject.X+1, _candyObject.Y+1, fillTime);	
+    }
+    
+    //右
+    public void MoveRight(float fillTime)
+    {
+        MoveTo(_candyObject.X+1, _candyObject.Y, fillTime);	
     }
 	
     public void MoveTo(int x, int y, float time)
@@ -61,6 +73,9 @@ public class CandyMoved : MonoBehaviour
         //保证位置一定对。
         _candyObject.transform.position = GameManager.Instance.CorrectPostion(x, y);
     }
-	
-	
+
+
+
+
+
 }
