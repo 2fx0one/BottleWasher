@@ -56,10 +56,18 @@ public class CandyObject : MonoBehaviour
 		get { return _color; }
 	}
 
+	public CandyClear Clear
+	{
+		get { return _clear; }
+	}
+
+	private CandyClear _clear;
+	
 	private void Awake()
 	{
         _candyMoved = GetComponent<CandyMoved>();
 		_color = GetComponent<CandyCategory>();
+		_clear = GetComponent<CandyClear>();
 	}
 	
 	
@@ -70,6 +78,11 @@ public class CandyObject : MonoBehaviour
 	public bool HasColor()
 	{
 		return _color != null;
+	}
+
+	public bool HasClear()
+	{
+		return _clear != null;
 	}
 	
 	public void Init(int x, int y, GameManager gameManager, GameManager.CandyType candyType)

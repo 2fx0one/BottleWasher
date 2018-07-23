@@ -58,7 +58,8 @@ public class GameManager : MonoBehaviour {
     private CandyObject pressedCandy;
     private CandyObject enteredCandy;
     // Use this for initialization
-    void Start () 
+
+    void InitGame()
     {
         //candy dict
         candyPrefabDict = new Dictionary<CandyType, GameObject>();
@@ -110,7 +111,11 @@ public class GameManager : MonoBehaviour {
         CreateCandy(7, 4, CandyType.BARRIER);
         CreateCandy(8, 4, CandyType.BARRIER);
 //        createCandy(9, 4, CandyType.BARRIER);
+    }
+    void Start () 
+    {
 
+        InitGame();
 //		FillAll();
         StartCoroutine(FillAll());
 
@@ -124,7 +129,47 @@ public class GameManager : MonoBehaviour {
             yield return new WaitForSeconds(fillTime);
         }
         Debug.Log("FillAll");
+
+        foreach (var candy in candies)
+        {
+            List<CandyObject> sameList =  new List<CandyObject>();
+            AddSameCandyToList(candy, sameList);
+            Debug.Log(sameList.Count);
+            if (sameList.Count >= 3)
+            {
+                foreach (var o in sameList)
+                {
+                    Destroy(o.gameObject);
+                }
+                
+            }
+
+            
+        }
+
     }
+
+    public void AddSameCandyToList(CandyObject current,  List<CandyObject> sameList)
+    {
+        if (sameList.Contains(current))
+        {
+            return;
+        }
+        
+        sameList.Add(current);
+        CandyObject[] tempList = 
+            new CandyObject[] {UpCandy(current), DownCandy(current), RightCandy(current), LeftCandy(current) };
+        foreach (var o in tempList)
+        {
+            if (o != null && o.HasColor() && o.HasClear() && o.Color == current.Color)
+            {
+                AddSameCandyToList(o, sameList);
+            }
+        }
+        
+
+    }
+    
 
     //分步填充
     public bool FillFinished()
@@ -145,7 +190,7 @@ public class GameManager : MonoBehaviour {
                 {
 //                    Debug.Log("========currentCandy.HasMove()======== currentCandy.x = " + currentCandy.X + "  currentCandy.Y = " + currentCandy.Y);
                     //正下方 必须是空的.才能移动过去
-                    CandyObject belowDirectly = BelowDirectlyCandy(currentMapX, currentMapY);
+                    CandyObject belowDirectly = DownCandy(currentCandy);
                     if (belowDirectly != null && belowDirectly.CandyType == CandyType.EMPTY) //正下方 是空的
 //                    if (BelowDirectly(currentMapX, currentMapY))
                     {
@@ -160,7 +205,7 @@ public class GameManager : MonoBehaviour {
                         //检查左下和右下 向上查找 如果找到一个非空且不可移动的.那么就表示可以移动到改位置
 
                         //右边 
-                        CandyObject right = RightCandy(currentMapX, currentMapY);
+                        CandyObject right = RightCandy(currentCandy);
                     
                         if (CanFindBarrierAbove(right))
                         {
@@ -173,7 +218,7 @@ public class GameManager : MonoBehaviour {
                         }
                         
                         //右下
-                        CandyObject belowRight = BelowRightCandy(currentMapX, currentMapY);
+                        CandyObject belowRight = DownRightCandy(currentCandy);
                         if (CanFindBarrierAbove(belowRight))
                         {
                             currentCandy.CandyMoved.MoveToCandyAndReplace(belowRight, fillTime);
@@ -199,7 +244,7 @@ public class GameManager : MonoBehaviour {
 //                        }
                     
                         //左下
-                        CandyObject belowLeft = BelowLeftCandy(currentMapX, currentMapY);
+                        CandyObject belowLeft = DownLeftCandy(currentCandy);
                         if (CanFindBarrierAbove(belowLeft))
                         {
                             currentCandy.CandyMoved.MoveToCandyAndReplace(belowLeft, fillTime);
@@ -283,33 +328,39 @@ public class GameManager : MonoBehaviour {
     }
 
     
+    //up
+    private CandyObject UpCandy(CandyObject o)
+    {
+        return CurrentCandy(o.X, o.Y - 1);
+    }
+    
     //正下方位置
-    private CandyObject BelowDirectlyCandy(int x, int y)
+    private CandyObject DownCandy(CandyObject o)
     {     
-        return CurrentCandy(x, y+1);
+        return CurrentCandy(o.X, o.Y + 1);
     }
   
     //左
-    private CandyObject LeftCandy(int x, int y)
+    private CandyObject LeftCandy(CandyObject o)
     {
-        return CurrentCandy(x-1, y);
+        return CurrentCandy(o.X-1, o.Y);
     }
     //右
-    private CandyObject RightCandy(int x, int y)
+    private CandyObject RightCandy(CandyObject o)
     {
-        return CurrentCandy(x+1, y);
+        return CurrentCandy(o.X+1, o.Y);
     }
     
     //左下
-    private CandyObject BelowLeftCandy(int x, int y)
+    private CandyObject DownLeftCandy(CandyObject o)
     {
-        return CurrentCandy(x-1, y+1);
+        return CurrentCandy(o.X-1, o.Y+1);
     }
     
     //右下
-    private CandyObject BelowRightCandy(int x, int y)
+    private CandyObject DownRightCandy(CandyObject o)
     {
-        return CurrentCandy(x+1, y+1);
+        return CurrentCandy(o.X+1, o.Y+1);
     }
 
 
