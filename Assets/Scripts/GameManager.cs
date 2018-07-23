@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO.IsolatedStorage;
 using System.Runtime.CompilerServices;
+using System.Xml.Linq;
 using UnityEngine;
 
 public class GameManager : MonoBehaviour {
@@ -83,7 +84,7 @@ public class GameManager : MonoBehaviour {
         {
             for (int y = 0; y < yRow; y++)
             {
-                createCandy(x, y, CandyType.EMPTY);
+                CreateCandy(x, y, CandyType.EMPTY);
             }
 			
         }
@@ -99,15 +100,15 @@ public class GameManager : MonoBehaviour {
 //        Destroy(candies[8, 4].gameObject);
 //        Destroy(candies[9, 4].gameObject);
         
-//        createCandy(0, 4, CandyType.BARRIER);
-        createCandy(1, 4, CandyType.BARRIER);
-        createCandy(2, 4, CandyType.BARRIER);
-        createCandy(3, 4, CandyType.BARRIER);
-//        createCandy(4, 4, CandyType.BARRIER);
-        createCandy(5, 4, CandyType.BARRIER);
-        createCandy(6, 4, CandyType.BARRIER);
-        createCandy(7, 4, CandyType.BARRIER);
-        createCandy(8, 4, CandyType.BARRIER);
+        CreateCandy(0, 4, CandyType.BARRIER);
+        CreateCandy(1, 4, CandyType.BARRIER);
+        CreateCandy(2, 4, CandyType.BARRIER);
+        CreateCandy(3, 4, CandyType.BARRIER);
+        CreateCandy(4, 4, CandyType.BARRIER);
+        CreateCandy(5, 4, CandyType.BARRIER);
+        CreateCandy(6, 4, CandyType.BARRIER);
+        CreateCandy(7, 4, CandyType.BARRIER);
+        CreateCandy(8, 4, CandyType.BARRIER);
 //        createCandy(9, 4, CandyType.BARRIER);
 
 //		FillAll();
@@ -130,11 +131,11 @@ public class GameManager : MonoBehaviour {
         //单次填充是否完成
         bool filledFinished = true;
         
-        //地图上 从下往上 倒数第二行开始 从右向左扫描 为了右边推进!
+        //地图上 从下往上 倒数第二行开始 
         
-        for (int currentMapX = xCol-1; currentMapX >=0 ; currentMapX--) // 水平方向 从左到右
+        for (int currentMapY = yRow-2; currentMapY >= 0; currentMapY--) //垂直方向 从下到上
         {
-            for (int currentMapY = yRow-2; currentMapY >= 0; currentMapY--) //垂直方向 从下到上
+            for (int currentMapX = xCol-1; currentMapX >= 0; currentMapX--) // 水平方向  从右向左扫描 为了右边推进!
             {
                 //当前元素位置的对象
                 CandyObject currentCandy = CurrentCandy(currentMapX, currentMapY);
@@ -148,7 +149,7 @@ public class GameManager : MonoBehaviour {
 //                    if (BelowDirectly(currentMapX, currentMapY))
                     {
                         currentCandy.CandyMoved.MoveToCandyAndReplace(belowDirectly, fillTime); //动画和基础组件上更新位置 且会覆盖原有位置
-                        createCandy(currentMapX, currentMapY, CandyType.EMPTY); //创建空位
+                        CreateEmptyCandy(currentMapX, currentMapY); //创建空位
 
                         filledFinished = false; //填充未结束。还有空位
                     }
@@ -164,53 +165,55 @@ public class GameManager : MonoBehaviour {
                         {
 //                            Debug.Log("right  x= " + right.X + "  y=" + right.Y);
                             currentCandy.CandyMoved.MoveToCandyAndReplace(right, fillTime);
-                            createCandy(currentMapX, currentMapY, CandyType.EMPTY);
+                            CreateEmptyCandy(currentMapX, currentMapY);
 
                             filledFinished = false;
                             continue;
-//                            break;
-                        }  
+                        }
                         
-//                        //左边
-                        CandyObject left = LeftCandy(currentMapX, currentMapY);
-                        if (CanFindBarrierAbove(left))
+                        //右下
+                        CandyObject belowRight = BelowRightCandy(currentMapX, currentMapY);
+                        if (CanFindBarrierAbove(belowRight))
                         {
-                            currentCandy.CandyMoved.MoveToCandyAndReplace(left, fillTime);
-                            createCandy(currentMapX, currentMapY, CandyType.EMPTY);
-                            
+                            currentCandy.CandyMoved.MoveToCandyAndReplace(belowRight, fillTime);
+                            CreateEmptyCandy(currentMapX, currentMapY);
+
                             filledFinished = false;
                             continue;
                         }
+                        //!!  bug:来回左右移动!  向左边移动后, 右边空位 但是遍历方向是从右向左. 循环无法结束.   {从右向左} 与 {左移动} 冲突 故而注释
+                        //左边
+//                        CandyObject left = LeftCandy(currentMapX, currentMapY);
+//                        if (CanFindBarrierAbove(left))
+//                        {
+//                            if (left.X == 2 && left.Y == 5)
+//                            {
+//                                Debug.Log("left xxx");
+//                            }
+//                            currentCandy.CandyMoved.MoveToCandyAndReplace(left, fillTime);
+//                            CreateEmptyCandy(currentMapX, currentMapY);
+//                            
+//                            filledFinished = false;
+//                            break; //必须break 否则会 来回左右移动!
+//                        }
                     
                         //左下
                         CandyObject belowLeft = BelowLeftCandy(currentMapX, currentMapY);
                         if (CanFindBarrierAbove(belowLeft))
                         {
                             currentCandy.CandyMoved.MoveToCandyAndReplace(belowLeft, fillTime);
-                            createCandy(currentMapX, currentMapY, CandyType.EMPTY);
+                            CreateEmptyCandy(currentMapX, currentMapY);
 
                             filledFinished = false;
                             continue;
                         }
 
                     
-                        //右下
-                        CandyObject belowRight = BelowRightCandy(currentMapX, currentMapY);
-                        if (CanFindBarrierAbove(belowRight))
-                        {
-                            currentCandy.CandyMoved.MoveToCandyAndReplace(belowRight, fillTime);
-                            createCandy(currentMapX, currentMapY, CandyType.EMPTY);
 
-                            filledFinished = false;
-                            continue;
-                        }
                     
-   
                     }
                 }
-                ///当前元素的正下方
             }
-
         }
 
         //最上排特殊情况
@@ -222,7 +225,7 @@ public class GameManager : MonoBehaviour {
             if (emptyCandy.CandyType == CandyType.EMPTY)
             {
                 Destroy(emptyCandy.gameObject);
-                CandyObject fall = createCandy(x, -1, CandyType.NORMAL);
+                CandyObject fall = CreateCandy(x, -1, CandyType.NORMAL);
                 fall.CandyMoved.MoveTo(x, 0, fillTime);
                
                 filledFinished = false;
@@ -232,8 +235,12 @@ public class GameManager : MonoBehaviour {
     }
 
 
+    public CandyObject CreateEmptyCandy(int x, int y)
+    {
+        return CreateCandy(x, y, CandyType.EMPTY);
+    }
 
-    public CandyObject createCandy(int x, int y, CandyType type)
+    public CandyObject CreateCandy(int x, int y, CandyType type)
     {
         GameObject candy = Instantiate(candyPrefabDict[type], CorrectPostion(x, y), Quaternion.identity);
         //设置父对象
