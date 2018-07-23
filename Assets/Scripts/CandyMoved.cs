@@ -14,43 +14,50 @@ public class CandyMoved : MonoBehaviour
         _candyObject = GetComponent<CandyObject>();
     }
 
-    //向下 移动一格
-    public void MoveDown(float fillTime)
-    {
-        MoveTo(_candyObject.X, _candyObject.Y+1, fillTime);	
-    }
+
+    
     
     //左
-    public void MoveLeft(float fillTime)
+    public void MoveToLeft(float fillTime)
     {
         MoveTo(_candyObject.X-1, _candyObject.Y, fillTime);	
     }
-	
-    //向左下 移动一格
-    public void MoveDownLeft( float fillTime)
-    {
-        MoveTo(_candyObject.X-1, _candyObject.Y+1, fillTime);	
-    }
-    //向右下 移动一格
-    public void MoveDownRight( float fillTime)
-    {
-        MoveTo(_candyObject.X+1, _candyObject.Y+1, fillTime);	
-    }
-    
     //右
-    public void MoveRight(float fillTime)
+    public void MoveToRight(float fillTime)
     {
         MoveTo(_candyObject.X+1, _candyObject.Y, fillTime);	
     }
 	
+    
+    //向下 移动一格
+    public void MoveToBelow(float fillTime)
+    {
+        MoveTo(_candyObject.X, _candyObject.Y+1, fillTime);	
+    }
+    
+    //向左下 移动一格
+    public void MoveToBelowLeft( float fillTime)
+    {
+        MoveTo(_candyObject.X-1, _candyObject.Y+1, fillTime);	
+    }
+    //向右下 移动一格
+    public void MoveToBelowRight( float fillTime)
+    {
+        MoveTo(_candyObject.X+1, _candyObject.Y+1, fillTime);	
+    }
+    
+
+	
     public void MoveTo(int x, int y, float time)
     {
+//        Debug.Log("MoveTo x = " + x + "  y=" + y);
         //逻辑更新 地图上的位置
         GameManager.Instance.UpdateCandyPositionInMap(_candyObject, x, y);
 
         //开始动画
         if (moveCoroutine != null)
         {
+            Debug.Log("stop Coroutine");
             StopCoroutine(moveCoroutine);
         }
 
