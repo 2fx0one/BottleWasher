@@ -100,11 +100,11 @@ public class GameManager : MonoBehaviour {
 //        Destroy(candies[8, 4].gameObject);
 //        Destroy(candies[9, 4].gameObject);
         
-        CreateCandy(0, 4, CandyType.BARRIER);
+//        CreateCandy(0, 4, CandyType.BARRIER);
         CreateCandy(1, 4, CandyType.BARRIER);
         CreateCandy(2, 4, CandyType.BARRIER);
         CreateCandy(3, 4, CandyType.BARRIER);
-        CreateCandy(4, 4, CandyType.BARRIER);
+//        CreateCandy(4, 4, CandyType.BARRIER);
         CreateCandy(5, 4, CandyType.BARRIER);
         CreateCandy(6, 4, CandyType.BARRIER);
         CreateCandy(7, 4, CandyType.BARRIER);
@@ -123,6 +123,7 @@ public class GameManager : MonoBehaviour {
         {
             yield return new WaitForSeconds(fillTime);
         }
+        Debug.Log("FillAll");
     }
 
     //分步填充
