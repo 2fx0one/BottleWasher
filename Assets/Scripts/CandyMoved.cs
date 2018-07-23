@@ -30,9 +30,10 @@ public class CandyMoved : MonoBehaviour
 	
     
     //向下 移动一格
-    public void MoveToBelow(float fillTime)
+    public void MoveToCandyAndReplace(CandyObject candy, float fillTime)
     {
-        MoveTo(_candyObject.X, _candyObject.Y+1, fillTime);	
+        MoveTo(candy.X, candy.Y, fillTime);
+        Destroy(candy.gameObject);
     }
     
     //向左下 移动一格

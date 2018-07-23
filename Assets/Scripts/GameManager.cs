@@ -89,21 +89,21 @@ public class GameManager : MonoBehaviour {
         }
 
 //        Destroy(candies[0, 4].gameObject);
-        Destroy(candies[1, 4].gameObject);
-        Destroy(candies[2, 4].gameObject);
-        Destroy(candies[3, 4].gameObject);
-        Destroy(candies[4, 4].gameObject);
-        Destroy(candies[5, 4].gameObject);
-        Destroy(candies[6, 4].gameObject);
-        Destroy(candies[7, 4].gameObject);
-        Destroy(candies[8, 4].gameObject);
+//        Destroy(candies[1, 4].gameObject);
+//        Destroy(candies[2, 4].gameObject);
+//        Destroy(candies[3, 4].gameObject);
+//        Destroy(candies[4, 4].gameObject);
+//        Destroy(candies[5, 4].gameObject);
+//        Destroy(candies[6, 4].gameObject);
+//        Destroy(candies[7, 4].gameObject);
+//        Destroy(candies[8, 4].gameObject);
 //        Destroy(candies[9, 4].gameObject);
         
 //        createCandy(0, 4, CandyType.BARRIER);
         createCandy(1, 4, CandyType.BARRIER);
         createCandy(2, 4, CandyType.BARRIER);
         createCandy(3, 4, CandyType.BARRIER);
-        createCandy(4, 4, CandyType.BARRIER);
+//        createCandy(4, 4, CandyType.BARRIER);
         createCandy(5, 4, CandyType.BARRIER);
         createCandy(6, 4, CandyType.BARRIER);
         createCandy(7, 4, CandyType.BARRIER);
@@ -147,8 +147,7 @@ public class GameManager : MonoBehaviour {
                     if (belowDirectly != null && belowDirectly.CandyType == CandyType.EMPTY) //正下方 是空的
 //                    if (BelowDirectly(currentMapX, currentMapY))
                     {
-                        currentCandy.CandyMoved.MoveToBelow(fillTime); //动画和基础组件上更新位置
-                        Destroy(belowDirectly.gameObject); //删除下方
+                        currentCandy.CandyMoved.MoveToCandyAndReplace(belowDirectly, fillTime); //动画和基础组件上更新位置 且会覆盖原有位置
                         createCandy(currentMapX, currentMapY, CandyType.EMPTY); //创建空位
 
                         filledFinished = false; //填充未结束。还有空位
@@ -164,8 +163,7 @@ public class GameManager : MonoBehaviour {
                         if (CanFindBarrierAbove(right))
                         {
 //                            Debug.Log("right  x= " + right.X + "  y=" + right.Y);
-                            currentCandy.CandyMoved.MoveToRight(fillTime);
-                            Destroy(right.gameObject);
+                            currentCandy.CandyMoved.MoveToCandyAndReplace(right, fillTime);
                             createCandy(currentMapX, currentMapY, CandyType.EMPTY);
 
                             filledFinished = false;
@@ -177,36 +175,35 @@ public class GameManager : MonoBehaviour {
                         CandyObject left = LeftCandy(currentMapX, currentMapY);
                         if (CanFindBarrierAbove(left))
                         {
-                            currentCandy.CandyMoved.MoveToLeft(fillTime);
-                            Destroy(left.gameObject);
+                            currentCandy.CandyMoved.MoveToCandyAndReplace(left, fillTime);
                             createCandy(currentMapX, currentMapY, CandyType.EMPTY);
+                            
                             filledFinished = false;
                             continue;
                         }
                     
-//                        //左下
-//                        CandyObject belowLeft = BelowLeftCandy(currentMapX, currentMapY);
-//                        if (CanFindBarrierAbove(belowLeft))
-//                        {
-//                            currentCandy.CandyMoved.MoveToBelowLeft(fillTime);
-//                            Destroy(belowLeft.gameObject);
-//                            createCandy(currentMapX, currentMapY, CandyType.EMPTY);
-//                            filledFinished = false;
-//                            continue;
-//                        }
-//
-//                    
-//                        //右下
-//                        CandyObject belowRight = BelowRightCandy(currentMapX, currentMapY);
-//                        if (CanFindBarrierAbove(belowRight))
-//                        {
-//                            currentCandy.CandyMoved.MoveToBelowRight(fillTime);
-//                            Destroy(belowRight.gameObject);
-//                            createCandy(currentMapX, currentMapY, CandyType.EMPTY);
-//
-//                            filledFinished = false;
-//                            continue;
-//                        }
+                        //左下
+                        CandyObject belowLeft = BelowLeftCandy(currentMapX, currentMapY);
+                        if (CanFindBarrierAbove(belowLeft))
+                        {
+                            currentCandy.CandyMoved.MoveToCandyAndReplace(belowLeft, fillTime);
+                            createCandy(currentMapX, currentMapY, CandyType.EMPTY);
+
+                            filledFinished = false;
+                            continue;
+                        }
+
+                    
+                        //右下
+                        CandyObject belowRight = BelowRightCandy(currentMapX, currentMapY);
+                        if (CanFindBarrierAbove(belowRight))
+                        {
+                            currentCandy.CandyMoved.MoveToCandyAndReplace(belowRight, fillTime);
+                            createCandy(currentMapX, currentMapY, CandyType.EMPTY);
+
+                            filledFinished = false;
+                            continue;
+                        }
                     
    
                     }
@@ -230,7 +227,6 @@ public class GameManager : MonoBehaviour {
                
                 filledFinished = false;
             }
-
         }
         return filledFinished;
     }
@@ -246,14 +242,20 @@ public class GameManager : MonoBehaviour {
         create.Init(x, y, this, type);
         
         //放入二维数组
+        
+        //最上层的天空中,需要随机设置颜色 且不要放到地图数组中!
         if (y < 0) 
         {
-            //最上层的天空中,需要随机设置颜色 且不要放到地图数组中!
             create.Color.SetColor((CandyCategory.ColorType) Random.Range(0, create.Color.NumColors));
         }
         else
         {
-            //放到数组中
+            //放到数组中 原来的需要删除了
+//            CandyObject old = candies[x, y];
+//            if (old != null)
+//            {
+//                Destroy(old.gameObject);
+//            }
             candies[x, y] = create;
         }
 
