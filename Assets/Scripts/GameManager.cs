@@ -19,16 +19,43 @@ public class GameManager : MonoBehaviour {
             _instance = value;
         }
     }
-    private void Awake()
-    {
-        _instance = this;
-    }
+
 
     public int xCol;
     public int yRow;
 
     public GameObject gridPrefab;
+    
+    //糖果颜色
+    public enum ColorType
+    {
+        YELLOW,
+        PURPLE,
+        RED,
+        BLUE,
+        GREEN,
+        PINK,
+        ANY,
+        COUNT
+    }
 
+    [System.Serializable]
+    public struct ColorSprite
+    {
+        public ColorType color;
+        public Sprite sprite;
+    }
+
+    public ColorSprite[] colorSprites; //unity 面板拖放
+    
+    public Dictionary<ColorType, Sprite> colorSpriteDict;
+    public int NumColors
+    {
+        get { return colorSprites.Length; }
+    }
+    //===============================
+
+    //糖果状态
     public enum CandyType //基础分类
     {
         EMPTY,
@@ -42,6 +69,7 @@ public class GameManager : MonoBehaviour {
 
     public Dictionary<CandyType, GameObject> candyPrefabDict;
 
+   
     [System.Serializable]
     public struct CandyPrefab
     {
@@ -59,8 +87,23 @@ public class GameManager : MonoBehaviour {
     private CandyObject enteredCandy;
     // Use this for initialization
 
+    private void Awake()
+    {
+        _instance = this;
+        sameCandyList = new List<CandyObject> ();
+        boomList = new List<CandyObject> ();
+    }
+
     void InitGame()
     {
+        colorSpriteDict = new Dictionary<ColorType, Sprite>();
+        for (int i = 0; i < colorSprites.Length; i++)
+        {
+            if (!colorSpriteDict.ContainsKey(colorSprites[i].color))
+            {
+                colorSpriteDict.Add(colorSprites[i].color, colorSprites[i].sprite);
+            }
+        }
         //candy dict
         candyPrefabDict = new Dictionary<CandyType, GameObject>();
         for (int i = 0; i < CandyPrefabs.Length; i++)
@@ -89,17 +132,6 @@ public class GameManager : MonoBehaviour {
             }
 			
         }
-
-//        Destroy(candies[0, 4].gameObject);
-//        Destroy(candies[1, 4].gameObject);
-//        Destroy(candies[2, 4].gameObject);
-//        Destroy(candies[3, 4].gameObject);
-//        Destroy(candies[4, 4].gameObject);
-//        Destroy(candies[5, 4].gameObject);
-//        Destroy(candies[6, 4].gameObject);
-//        Destroy(candies[7, 4].gameObject);
-//        Destroy(candies[8, 4].gameObject);
-//        Destroy(candies[9, 4].gameObject);
         
 //        CreateCandy(0, 4, CandyType.BARRIER);
         CreateCandy(1, 4, CandyType.BARRIER);
@@ -129,34 +161,50 @@ public class GameManager : MonoBehaviour {
             yield return new WaitForSeconds(fillTime);
         }
         Debug.Log("FillAll");
+        
+        yield return new WaitForSeconds(fillTime);
 
-        foreach (var candy in candies)
-        {
-            List<CandyObject> sameList =  new List<CandyObject>();
-            AddSameCandyToList(sameList, candy);
-            if (sameList.Count >= 3)
-            {
-                Debug.Log(sameList.Count);
-                foreach (var o in sameList)
-                {
-                    Destroy(o.gameObject);
-                }
-                
-            }
-
-            
-        }
+        BoomAllSameCandy();
 
     }
 
-    public void AddSameCandyToList(List<CandyObject> sameList, CandyObject current)
+    //相同candy列表
+    public List<CandyObject> sameCandyList;
+    //要消除的candy列表
+    public List<CandyObject> boomList;
+    
+    //三个相同的检测 并放入消除列表
+    public void BoomAllSameCandy()
     {
-        if (sameList.Contains(current))
+        
+        //
+        foreach (CandyObject candy in candies)
+        {
+            sameCandyList.Clear();
+            boomList.Clear();
+            Debug.Log("x= " + candy.X + "  y= " + candy.Y);
+            FillSameItemsList(candy);
+            Debug.Log(sameCandyList.Count);
+            if (sameCandyList.Count >= 3)
+            {
+                Debug.Log(sameCandyList.Count);
+                foreach (var o in sameCandyList)
+                {
+                    Destroy(o.gameObject);
+                }
+            }
+        }
+    }
+    
+    //填充相同Item列表
+    public void FillSameItemsList(CandyObject current)
+    {
+        if (this.sameCandyList.Contains(current))
         {
             return;
         }
         
-        sameList.Add(current);
+        this.sameCandyList.Add(current);
         CandyObject[] tempList = 
             {UpCandy(current), DownCandy(current), RightCandy(current), LeftCandy(current) };
 //        Debug.Log(" Length = " + tempList.Length);
@@ -168,11 +216,15 @@ public class GameManager : MonoBehaviour {
             }
             if (o != null && current.HasCategroy() && o.HasCategroy() && o.Category.Color.Equals(current.Category.Color))
             {
-                AddSameCandyToList(sameList, current);
+                FillSameItemsList(o);
             }
         }
-        
+    }
 
+    //填充待消除列表
+    public void FillBoomList(CandyObject current)
+    {
+        
     }
     
 
@@ -302,9 +354,11 @@ public class GameManager : MonoBehaviour {
         //放入二维数组
         
         //最上层的天空中,需要随机设置颜色 且不要放到地图数组中!
-        if (y < 0) 
+        if (y < 0)
         {
-            create.Category.SetColor((CandyCategory.ColorType) Random.Range(0, create.Category.NumColors));
+            ColorType colorType = (ColorType) Random.Range(0, this.NumColors);
+//            colorSpriteDict[colorType]
+            create.Category.SetColor(colorType, colorSpriteDict[colorType]);
         }
         else
         {
