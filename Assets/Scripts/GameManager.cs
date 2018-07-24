@@ -162,7 +162,7 @@ public class GameManager : MonoBehaviour {
         }
         Debug.Log("FillAll");
         
-        yield return new WaitForSeconds(fillTime);
+        yield return new WaitForSeconds(1);
 
         BoomAllSameCandy();
 
@@ -182,17 +182,17 @@ public class GameManager : MonoBehaviour {
         {
             sameCandyList.Clear();
             boomList.Clear();
-            Debug.Log("x= " + candy.X + "  y= " + candy.Y);
+//            Debug.Log("x= " + candy.X + "  y= " + candy.Y);
             FillSameItemsList(candy);
-            Debug.Log(sameCandyList.Count);
-            if (sameCandyList.Count >= 3)
-            {
-                Debug.Log(sameCandyList.Count);
-                foreach (var o in sameCandyList)
-                {
-                    Destroy(o.gameObject);
-                }
-            }
+            FillBoomList(candy);
+//            Debug.Log(sameCandyList.Count);
+//            if (boomList.Count > 0)
+//            {
+//                foreach (var o in boomList)
+//                {
+//                    Destroy(o.gameObject);
+//                }
+//            }
         }
     }
     
@@ -208,15 +208,15 @@ public class GameManager : MonoBehaviour {
         CandyObject[] tempList = 
             {UpCandy(current), DownCandy(current), RightCandy(current), LeftCandy(current) };
 //        Debug.Log(" Length = " + tempList.Length);
-        foreach (CandyObject o in tempList)
+        foreach (CandyObject neighour in tempList)
         {
-            if (o != null)
+            if (neighour != null)
             {
 //                Debug.Log("a = " + o.Category + "  b= " + current.Category);
             }
-            if (o != null && current.HasCategroy() && o.HasCategroy() && o.Category.Color.Equals(current.Category.Color))
+            if (neighour != null && current.HasCategroy() && neighour.HasCategroy() && neighour.Category.Color.Equals(current.Category.Color))
             {
-                FillSameItemsList(o);
+                FillSameItemsList(neighour);
             }
         }
     }
@@ -224,13 +224,89 @@ public class GameManager : MonoBehaviour {
     //填充待消除列表
     public void FillBoomList(CandyObject current)
     {
+        //计数器
+//        int rowCount = 0;
+//        int columnCount = 0;
+        //临时列表
+        List<CandyObject> rowTempList = new List<CandyObject> ();
+        List<CandyObject> columnTempList = new List<CandyObject> ();
+
+        int currentX = current.X;
+        int currentY = current.Y;
+        foreach (CandyObject sameCandy in this.sameCandyList) //颜色相同 包含自己
+        {
+            //如果在同一行 
+            if (currentY == sameCandy.Y)
+            {
+                rowTempList.Add(sameCandy);
+            }
+            
+            //同一列
+            if (currentX == sameCandy.X)
+            {
+                columnTempList.Add(sameCandy);
+            }
+        }
         
+        //是否有水平消除
+        bool horizontalBoom = false;
+        if (rowTempList.Count >= 3)
+        {
+            this.boomList.AddRange(rowTempList);
+            horizontalBoom = true;
+        }
+
+        if (columnTempList.Count >= 3)
+        {
+            if (horizontalBoom)
+            {
+                boomList.Remove(current);
+            }
+            this.boomList.AddRange(columnTempList);
+        }
+
+        if (boomList.Count != 0)
+        {
+            //创建临时的BoomList
+            List<CandyObject> tempBoomList = new List<CandyObject> ();
+            //转移到临时列表
+            tempBoomList.AddRange (boomList);
+            //TODO 开启协同 删除
+
+            StartCoroutine(DoBoomList(tempBoomList));
+//            foreach (var boomCandy in boomList)
+//            {
+//                Destroy(boomCandy.gameObject);
+//            }
+        }
     }
-    
+
+    IEnumerator DoBoomList(List<CandyObject> tempBoomList)
+    {
+        yield return new WaitForSeconds (0.5f);
+        foreach (var boomCandy in tempBoomList)
+        {
+            Destroy(boomCandy.gameObject);
+        }   
+        yield return new WaitForSeconds (0.38f);
+        FillFinished();
+        Debug.Log("FillFinished() ");
+//        while (!FillFinished()) ;
+//        StartCoroutine(drop());
+    }
+
+    private IEnumerator drop()
+    {
+        while (!FillFinished())
+        {
+            yield return new WaitForSeconds(fillTime);
+        }
+    }
 
     //分步填充
     public bool FillFinished()
     {
+        
         //单次填充是否完成
         bool filledFinished = true;
         
@@ -481,7 +557,8 @@ public class GameManager : MonoBehaviour {
             o1.CandyMoved.MoveTo(o2.X, o2.Y, fillTime);
             
             o2.CandyMoved.MoveTo(tempX, tempY, fillTime);
-    
+            BoomAllSameCandy();
+
         }
     }
 
