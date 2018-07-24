@@ -133,10 +133,10 @@ public class GameManager : MonoBehaviour {
         foreach (var candy in candies)
         {
             List<CandyObject> sameList =  new List<CandyObject>();
-            AddSameCandyToList(candy, sameList);
-            Debug.Log(sameList.Count);
+            AddSameCandyToList(sameList, candy);
             if (sameList.Count >= 3)
             {
+                Debug.Log(sameList.Count);
                 foreach (var o in sameList)
                 {
                     Destroy(o.gameObject);
@@ -149,7 +149,7 @@ public class GameManager : MonoBehaviour {
 
     }
 
-    public void AddSameCandyToList(CandyObject current,  List<CandyObject> sameList)
+    public void AddSameCandyToList(List<CandyObject> sameList, CandyObject current)
     {
         if (sameList.Contains(current))
         {
@@ -158,12 +158,17 @@ public class GameManager : MonoBehaviour {
         
         sameList.Add(current);
         CandyObject[] tempList = 
-            new CandyObject[] {UpCandy(current), DownCandy(current), RightCandy(current), LeftCandy(current) };
-        foreach (var o in tempList)
+            {UpCandy(current), DownCandy(current), RightCandy(current), LeftCandy(current) };
+//        Debug.Log(" Length = " + tempList.Length);
+        foreach (CandyObject o in tempList)
         {
-            if (o != null && o.HasColor() && o.HasClear() && o.Color == current.Color)
+            if (o != null)
             {
-                AddSameCandyToList(o, sameList);
+//                Debug.Log("a = " + o.Category + "  b= " + current.Category);
+            }
+            if (o != null && current.HasCategroy() && o.HasCategroy() && o.Category.Color.Equals(current.Category.Color))
+            {
+                AddSameCandyToList(sameList, current);
             }
         }
         
@@ -299,7 +304,7 @@ public class GameManager : MonoBehaviour {
         //最上层的天空中,需要随机设置颜色 且不要放到地图数组中!
         if (y < 0) 
         {
-            create.Color.SetColor((CandyCategory.ColorType) Random.Range(0, create.Color.NumColors));
+            create.Category.SetColor((CandyCategory.ColorType) Random.Range(0, create.Category.NumColors));
         }
         else
         {

@@ -58,7 +58,7 @@ public class CandyMoved : MonoBehaviour
         //开始动画
         if (moveCoroutine != null)
         {
-            Debug.Log("stop Coroutine");
+//            Debug.Log("stop Coroutine");
             StopCoroutine(moveCoroutine);
         }
 
