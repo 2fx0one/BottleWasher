@@ -123,7 +123,7 @@ public class GameManager : MonoBehaviour {
         }
 		
         //candy init
-        candies = new CandyObject[xCol, yRow];
+        candies = new CandyObject[xCol, yRow+1];  //+1 天空中一排的位置
         for (int x = 0; x < xCol; x++)
         {
             for (int y = 0; y < yRow; y++)
@@ -133,15 +133,18 @@ public class GameManager : MonoBehaviour {
 			
         }
         
-        CreateCandy(0, 4, CandyType.BARRIER);
-        CreateCandy(1, 4, CandyType.BARRIER);
-        CreateCandy(2, 4, CandyType.BARRIER);
-        CreateCandy(3, 4, CandyType.BARRIER);
-        CreateCandy(4, 4, CandyType.BARRIER);
-        CreateCandy(5, 4, CandyType.BARRIER);
-        CreateCandy(6, 4, CandyType.BARRIER);
-        CreateCandy(7, 4, CandyType.BARRIER);
-        CreateCandy(8, 4, CandyType.BARRIER);
+        CreateCandy(0, 0, CandyType.BARRIER);
+        CreateCandy(9, 10, CandyType.BARRIER);
+        
+//        CreateCandy(0, 4, CandyType.BARRIER);
+//        CreateCandy(1, 4, CandyType.BARRIER);
+//        CreateCandy(2, 4, CandyType.BARRIER);
+//        CreateCandy(3, 4, CandyType.BARRIER);
+//        CreateCandy(4, 4, CandyType.BARRIER);
+//        CreateCandy(5, 4, CandyType.BARRIER);
+//        CreateCandy(6, 4, CandyType.BARRIER);
+//        CreateCandy(7, 4, CandyType.BARRIER);
+//        CreateCandy(8, 4, CandyType.BARRIER);
 //        createCandy(9, 4, CandyType.BARRIER);
     }
     void Start () 
@@ -360,19 +363,17 @@ public class GameManager : MonoBehaviour {
         bool filledFinished = true;
         
         //地图上 从下往上 倒数第二行开始 
-        
-        for (int currentMapY = yRow-2; currentMapY >= 0; currentMapY--) //垂直方向 从下到上
+        for (int currentMapY = 1; currentMapY < yRow; currentMapY++) //垂直方向 从下到上
         {
             bool rightCandyHasMoved = false; //水平方向上, 右边的已经移动过的标记
-            for (int currentMapX = xCol-1; currentMapX >= 0; currentMapX--) // 水平方向  从右向左扫描 为了右边推进!
+            for (int currentMapX = xCol-1; currentMapX >= 0; currentMapX--) // 水平方向  从右向左扫描 为了向右边推进!
             {
+                Debug.Log("x = " +  currentMapX + "  y=" + currentMapY);
                 //当前元素位置的对象
-                CandyObject currentCandy = CurrentCandy(currentMapX, currentMapY);
+                CandyObject currentCandy = CurrentCandyInMap(currentMapX, currentMapY);
                 //当前必须可以移动
                 if (currentCandy.HasMove())
                 {
-                    
-
                     // Debug.Log("========currentCandy.HasMove()======== currentCandy.x = " + currentCandy.X + "  currentCandy.Y = " + currentCandy.Y);
                     //正下方 必须是空的.才能移动过去
                     CandyObject belowDirectly = DownCandy(currentCandy);
@@ -391,7 +392,7 @@ public class GameManager : MonoBehaviour {
                         {
                             RightCandy(currentCandy), //右边 
                             DownRightCandy(currentCandy),  //右下
-                            LeftCandy(currentCandy),  //左边 不处理左边 来回跳跃
+                            //LeftCandy(currentCandy),  //左边 不处理左边 来回跳跃
                             DownLeftCandy(currentCandy)  //左下
                         };
 
@@ -473,17 +474,19 @@ public class GameManager : MonoBehaviour {
             }
         }
 
-        //最上排特殊情况
+        //地图内的最上排特殊情况
 //		int y = -1;
         for (int x = 0; x < xCol; x++)
         {
-            CandyObject emptyCandy = candies[x, 0];
+            int y = yRow-1; //yRow 表示天空 那一层
+            CandyObject emptyCandy = candies[x, y];
 			
             if (emptyCandy.CandyType == CandyType.EMPTY)
             {
-                Destroy(emptyCandy.gameObject);
-                CandyObject fall = CreateCandy(x, -1, CandyType.NORMAL);
-                fall.CandyMoved.MoveTo(x, 0, fillTime);
+//                Destroy(emptyCandy.gameObject);
+                CandyObject fall = CreateCandy(x, yRow, CandyType.NORMAL); //yRow 表示天空 那一层
+                fall.CandyMoved.MoveTo(x, y, fillTime);
+//                fall.CandyMoved.MoveToCandyAndReplace(emptyCandy, fillTime);
                
                 filledFinished = false;
             }
@@ -499,6 +502,10 @@ public class GameManager : MonoBehaviour {
 
     public CandyObject CreateCandy(int x, int y, CandyType type)
     {
+//        if (type == CandyType.BARRIER) //初始化的时候
+//        {
+//            
+//        }
         GameObject candy = Instantiate(candyPrefabDict[type], CorrectPostion(x, y), Quaternion.identity);
         //设置父对象
         candy.transform.parent = transform;
@@ -508,7 +515,7 @@ public class GameManager : MonoBehaviour {
         //放入二维数组
         
         //最上层的天空中,需要随机设置颜色 且不要放到地图数组中!
-        if (y < 0)
+        if (y == yRow)
         {
             ColorType colorType = (ColorType) Random.Range(0, this.NumColors);
 //            colorSpriteDict[colorType]
@@ -532,7 +539,7 @@ public class GameManager : MonoBehaviour {
     }
     
     //当前地图位置中
-    private CandyObject CurrentCandy(int x, int y)
+    private CandyObject CurrentCandyInMap(int x, int y)
     {
         if (0 <= x && x < xCol && 0 <= y && y<yRow)
         {
@@ -542,39 +549,40 @@ public class GameManager : MonoBehaviour {
     }
 
     
-    //up
+    //上
     private CandyObject UpCandy(CandyObject o)
     {
-        return CurrentCandy(o.X, o.Y - 1);
+        return CurrentCandyInMap(o.X, o.Y + 1);
     }
     
-    //正下方位置
+    //下
     private CandyObject DownCandy(CandyObject o)
     {     
-        return CurrentCandy(o.X, o.Y + 1);
+        return CurrentCandyInMap(o.X, o.Y - 1);
     }
   
     //左
     private CandyObject LeftCandy(CandyObject o)
     {
-        return CurrentCandy(o.X-1, o.Y);
+        return CurrentCandyInMap(o.X-1, o.Y);
     }
     //右
     private CandyObject RightCandy(CandyObject o)
     {
-        return CurrentCandy(o.X+1, o.Y);
+        return CurrentCandyInMap(o.X+1, o.Y);
     }
+    
     
     //左下
     private CandyObject DownLeftCandy(CandyObject o)
     {
-        return CurrentCandy(o.X-1, o.Y+1);
+        return CurrentCandyInMap(o.X-1, o.Y-1);
     }
     
     //右下
     private CandyObject DownRightCandy(CandyObject o)
     {
-        return CurrentCandy(o.X+1, o.Y+1);
+        return CurrentCandyInMap(o.X+1, o.Y-1);
     }
 
 
@@ -585,7 +593,7 @@ public class GameManager : MonoBehaviour {
         {
             int x = currentCandy.X;
             int y = currentCandy.Y;
-            for (int aboveY = y; aboveY >= 0; aboveY--)
+            for (int aboveY = 0; aboveY < y; aboveY++)
             {
                 //向上遍历
                 CandyObject candyAbove = candies[x, aboveY];          
@@ -601,7 +609,7 @@ public class GameManager : MonoBehaviour {
     
     
     public Vector3 CorrectPostion(int x, int y) {
-        return new Vector3(this.transform.position.x - this.xCol * 0.5f + x, this.transform.position.y + yRow * 0.5f - y);
+        return new Vector3(this.transform.position.x - this.xCol * 0.5f + x, this.transform.position.y - yRow * 0.5f + y);
     }
 
     private bool IsNeighbour(CandyObject o1, CandyObject o2)
