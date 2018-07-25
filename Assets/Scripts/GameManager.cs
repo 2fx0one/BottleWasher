@@ -485,8 +485,8 @@ public class GameManager : MonoBehaviour {
             {
 //                Destroy(emptyCandy.gameObject);
                 CandyObject fall = CreateCandy(x, yRow, CandyType.NORMAL); //yRow 表示天空 那一层
-//                fall.CandyMoved.MoveTo(x, y, fillTime);
-                fall.CandyMoved.MoveToCandyAndReplace(emptyCandy, fillTime);
+                fall.CandyMoved.MoveTo(x, y, fillTime);
+//                fall.CandyMoved.MoveToCandyAndReplace(emptyCandy, fillTime);
                
                 filledFinished = false;
             }
@@ -519,6 +519,10 @@ public class GameManager : MonoBehaviour {
         {
             ColorType colorType = (ColorType) Random.Range(0, this.NumColors);
 //            colorSpriteDict[colorType]
+//            if (create == null)
+//            {
+//                Debug.Log("xxx");
+//            }
             create.Category.SetColor(colorType, colorSpriteDict[colorType]);
         }
         else
