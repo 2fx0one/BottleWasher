@@ -485,8 +485,8 @@ public class GameManager : MonoBehaviour {
             {
 //                Destroy(emptyCandy.gameObject);
                 CandyObject fall = CreateCandy(x, yRow, CandyType.NORMAL); //yRow 表示天空 那一层
-                fall.CandyMoved.MoveTo(x, y, fillTime);
-//                fall.CandyMoved.MoveToCandyAndReplace(emptyCandy, fillTime);
+//                fall.CandyMoved.MoveTo(x, y, fillTime);
+                fall.CandyMoved.MoveToCandyAndReplace(emptyCandy, fillTime);
                
                 filledFinished = false;
             }
