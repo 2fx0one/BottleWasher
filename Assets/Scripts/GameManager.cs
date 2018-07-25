@@ -133,11 +133,11 @@ public class GameManager : MonoBehaviour {
 			
         }
         
-//        CreateCandy(0, 4, CandyType.BARRIER);
+        CreateCandy(0, 4, CandyType.BARRIER);
         CreateCandy(1, 4, CandyType.BARRIER);
         CreateCandy(2, 4, CandyType.BARRIER);
         CreateCandy(3, 4, CandyType.BARRIER);
-//        CreateCandy(4, 4, CandyType.BARRIER);
+        CreateCandy(4, 4, CandyType.BARRIER);
         CreateCandy(5, 4, CandyType.BARRIER);
         CreateCandy(6, 4, CandyType.BARRIER);
         CreateCandy(7, 4, CandyType.BARRIER);
@@ -148,23 +148,31 @@ public class GameManager : MonoBehaviour {
     {
 
         InitGame();
-//		FillAll();
         StartCoroutine(FillAll());
+        
 
     }
 
 
     public IEnumerator FillAll()
     {
-        while (!FillFinished())
+        bool needRefill = true;
+        while (needRefill)
         {
             yield return new WaitForSeconds(fillTime);
+            while (!FillFinished())
+            {
+                yield return new WaitForSeconds(fillTime);
+            }
+            yield return new WaitForSeconds(fillTime);
+            needRefill = ClearAllMatchedCandies();
+            
         }
         Debug.Log("FillAll");
+//        
         
-        yield return new WaitForSeconds(1);
 
-        BoomAllSameCandy();
+        
 
     }
 
@@ -174,30 +182,51 @@ public class GameManager : MonoBehaviour {
     public List<CandyObject> boomList;
     
     //三个相同的检测 并放入消除列表
-    public void BoomAllSameCandy()
+    public bool ClearAllMatchedCandies()
     {
-        
-        //
-        foreach (CandyObject candy in candies)
+        bool needRefill = false;
+        foreach (CandyObject current in candies)
         {
-            sameCandyList.Clear();
-            boomList.Clear();
-//            Debug.Log("x= " + candy.X + "  y= " + candy.Y);
-            FillSameItemsList(candy);
-            FillBoomList(candy);
-//            Debug.Log(sameCandyList.Count);
-//            if (boomList.Count > 0)
-//            {
-//                foreach (var o in boomList)
-//                {
-//                    Destroy(o.gameObject);
-//                }
-//            }
+            List<CandyObject> matchCandies = MatchCandies(current);
+            if (matchCandies != null)
+            {
+                foreach (var matchCandy in matchCandies)
+                {
+                    if (ClearCandy(matchCandy))
+                    {
+                        needRefill = true;
+                    }
+                }
+            }
         }
+        return needRefill;
     }
+
     
+//    public void BoomAllSameCandy()
+//    {
+//        
+//        //
+//        foreach (CandyObject candy in candies)
+//        {
+////            sameCandyList.Clear();
+////            boomList.Clear();
+////            Debug.Log("x= " + candy.X + "  y= " + candy.Y);
+////            FillSameItemsList(candy);
+////            MatchCandies(candy);
+////            Debug.Log(sameCandyList.Count);
+////            if (boomList.Count > 0)
+////            {
+////                foreach (var o in boomList)
+////                {
+////                    Destroy(o.gameObject);
+////                }
+////            }
+//        }
+//    }
+//    
     //填充相同Item列表
-    public void FillSameItemsList(CandyObject current)
+    public void FindSameCandyList(CandyObject current)
     {
         if (this.sameCandyList.Contains(current))
         {
@@ -210,20 +239,24 @@ public class GameManager : MonoBehaviour {
 //        Debug.Log(" Length = " + tempList.Length);
         foreach (CandyObject neighour in tempList)
         {
-            if (neighour != null)
-            {
-//                Debug.Log("a = " + o.Category + "  b= " + current.Category);
-            }
+//            if (neighour != null)
+//            {
+////                Debug.Log("a = " + o.Category + "  b= " + current.Category);
+//            }
             if (neighour != null && current.HasCategroy() && neighour.HasCategroy() && neighour.Category.Color.Equals(current.Category.Color))
             {
-                FillSameItemsList(neighour);
+                FindSameCandyList(neighour);
             }
         }
     }
 
-    //填充待消除列表
-    public void FillBoomList(CandyObject current)
+    //匹配方法
+    public List<CandyObject> MatchCandies(CandyObject current)
     {
+        this.sameCandyList.Clear();
+        this.boomList.Clear();
+//            Debug.Log("x= " + candy.X + "  y= " + candy.Y);
+        FindSameCandyList(current);
         //计数器
 //        int rowCount = 0;
 //        int columnCount = 0;
@@ -273,35 +306,51 @@ public class GameManager : MonoBehaviour {
             tempBoomList.AddRange (boomList);
             //TODO 开启协同 删除
 
-            StartCoroutine(DoBoomList(tempBoomList));
+//            StartCoroutine(DoBoomList(tempBoomList));
 //            foreach (var boomCandy in boomList)
 //            {
-//                Destroy(boomCandy.gameObject);
+//                ClearCandy(boomCandy);
 //            }
+            return tempBoomList;
         }
+
+        return null;
     }
 
-    IEnumerator DoBoomList(List<CandyObject> tempBoomList)
+
+    public bool ClearCandy(CandyObject candy)
     {
-        yield return new WaitForSeconds (0.5f);
-        foreach (var boomCandy in tempBoomList)
+        if (candy.HasClear() && !candy.Clear.IsClearing)
         {
-            Destroy(boomCandy.gameObject);
-        }   
-        yield return new WaitForSeconds (0.38f);
-        FillFinished();
-        Debug.Log("FillFinished() ");
-//        while (!FillFinished()) ;
-//        StartCoroutine(drop());
+            candy.Clear.Clear();
+            CreateCandy(candy.X, candy.Y, CandyType.EMPTY);
+            return true;
+        }
+
+        return false;
     }
 
-    private IEnumerator drop()
-    {
-        while (!FillFinished())
-        {
-            yield return new WaitForSeconds(fillTime);
-        }
-    }
+//    IEnumerator DoBoomList(List<CandyObject> tempBoomList)
+//    {
+//        yield return new WaitForSeconds (0.5f);
+//        foreach (var boomCandy in tempBoomList)
+//        {
+//            Destroy(boomCandy.gameObject);
+//        }   
+//        yield return new WaitForSeconds (0.38f);
+//        FillFinished();
+//        Debug.Log("FillFinished() ");
+////        while (!FillFinished()) ;
+////        StartCoroutine(drop());
+//    }
+//
+//    private IEnumerator drop()
+//    {
+//        while (!FillFinished())
+//        {
+//            yield return new WaitForSeconds(fillTime);
+//        }
+//    }
 
     //分步填充
     public bool FillFinished()
@@ -314,6 +363,7 @@ public class GameManager : MonoBehaviour {
         
         for (int currentMapY = yRow-2; currentMapY >= 0; currentMapY--) //垂直方向 从下到上
         {
+            bool rightCandyHasMoved = false; //水平方向上, 右边的已经移动过的标记
             for (int currentMapX = xCol-1; currentMapX >= 0; currentMapX--) // 水平方向  从右向左扫描 为了右边推进!
             {
                 //当前元素位置的对象
@@ -321,7 +371,9 @@ public class GameManager : MonoBehaviour {
                 //当前必须可以移动
                 if (currentCandy.HasMove())
                 {
-//                    Debug.Log("========currentCandy.HasMove()======== currentCandy.x = " + currentCandy.X + "  currentCandy.Y = " + currentCandy.Y);
+                    
+
+                    // Debug.Log("========currentCandy.HasMove()======== currentCandy.x = " + currentCandy.X + "  currentCandy.Y = " + currentCandy.Y);
                     //正下方 必须是空的.才能移动过去
                     CandyObject belowDirectly = DownCandy(currentCandy);
                     if (belowDirectly != null && belowDirectly.CandyType == CandyType.EMPTY) //正下方 是空的
@@ -334,58 +386,84 @@ public class GameManager : MonoBehaviour {
                     }
                     else
                     {
+                        
+                        CandyObject[] tempList = 
+                        {
+                            RightCandy(currentCandy), //右边 
+                            DownRightCandy(currentCandy),  //右下
+                            LeftCandy(currentCandy),  //左边 不处理左边 来回跳跃
+                            DownLeftCandy(currentCandy)  //左下
+                        };
+
+                        foreach (var candy in tempList)
+                        {
+                            if (CanFindBarrierAbove(candy))
+                            {
+                                currentCandy.CandyMoved.MoveToCandyAndReplace(candy, fillTime);
+                                CreateEmptyCandy(currentMapX, currentMapY);
+
+                                filledFinished = false;
+                                break;
+                            }
+                            
+                        }
+                        
+                        
                         //下方不是空的时，
                         //检查左下和右下 向上查找 如果找到一个非空且不可移动的.那么就表示可以移动到改位置
 
                         //右边 
-                        CandyObject right = RightCandy(currentCandy);
-                    
-                        if (CanFindBarrierAbove(right))
-                        {
-//                            Debug.Log("right  x= " + right.X + "  y=" + right.Y);
-                            currentCandy.CandyMoved.MoveToCandyAndReplace(right, fillTime);
-                            CreateEmptyCandy(currentMapX, currentMapY);
-
-                            filledFinished = false;
-                            continue;
-                        }
-                        
-                        //右下
-                        CandyObject belowRight = DownRightCandy(currentCandy);
-                        if (CanFindBarrierAbove(belowRight))
-                        {
-                            currentCandy.CandyMoved.MoveToCandyAndReplace(belowRight, fillTime);
-                            CreateEmptyCandy(currentMapX, currentMapY);
-
-                            filledFinished = false;
-                            continue;
-                        }
-                        //!!  bug:来回左右移动!  向左边移动后, 右边空位 但是遍历方向是从右向左. 循环无法结束.   {从右向左} 与 {左移动} 冲突 故而注释
-                        //左边
-//                        CandyObject left = LeftCandy(currentMapX, currentMapY);
-//                        if (CanFindBarrierAbove(left))
+//                        CandyObject right = RightCandy(currentCandy);
+//                    
+//                        if (CanFindBarrierAbove(right))
 //                        {
-//                            if (left.X == 2 && left.Y == 5)
-//                            {
-//                                Debug.Log("left xxx");
-//                            }
+////                            Debug.Log("right  x= " + right.X + "  y=" + right.Y);
+//                            currentCandy.CandyMoved.MoveToCandyAndReplace(right, fillTime);
+//                            CreateEmptyCandy(currentMapX, currentMapY);
+//
+//                            filledFinished = false;
+//                            rightCandyHasMoved = true;
+//                            continue;
+//                        }
+//                        
+//                        //右下
+//                        
+//                        CandyObject belowRight = DownRightCandy(currentCandy);
+//                        if (CanFindBarrierAbove(belowRight))
+//                        {
+//                            currentCandy.CandyMoved.MoveToCandyAndReplace(belowRight, fillTime);
+//                            CreateEmptyCandy(currentMapX, currentMapY);
+//
+//                            filledFinished = false;
+//                            
+//                            continue;
+//                        }
+//                        //!!  bug:来回左右移动!  向左边移动后, 右边空位 但是遍历方向是从右向左. 循环无法结束.   {从右向左} 与 {左移动} 冲突 故而注释
+//                        //左边
+//                        CandyObject left = LeftCandy(currentCandy);
+//                        if (!rightCandyHasMoved && CanFindBarrierAbove(left))
+//                        {
+////                            if (left.X == 2 && left.Y == 5)
+////                            {
+////                                Debug.Log("left xxx");
+////                            }
 //                            currentCandy.CandyMoved.MoveToCandyAndReplace(left, fillTime);
 //                            CreateEmptyCandy(currentMapX, currentMapY);
 //                            
 //                            filledFinished = false;
 //                            break; //必须break 否则会 来回左右移动!
 //                        }
-                    
-                        //左下
-                        CandyObject belowLeft = DownLeftCandy(currentCandy);
-                        if (CanFindBarrierAbove(belowLeft))
-                        {
-                            currentCandy.CandyMoved.MoveToCandyAndReplace(belowLeft, fillTime);
-                            CreateEmptyCandy(currentMapX, currentMapY);
-
-                            filledFinished = false;
-                            continue;
-                        }
+//                    
+//                        //左下
+//                        CandyObject belowLeft = DownLeftCandy(currentCandy);
+//                        if (CanFindBarrierAbove(belowLeft))
+//                        {
+//                            currentCandy.CandyMoved.MoveToCandyAndReplace(belowLeft, fillTime);
+//                            CreateEmptyCandy(currentMapX, currentMapY);
+//
+//                            filledFinished = false;
+//                            continue;
+//                        }
 
                     
 
@@ -444,6 +522,7 @@ public class GameManager : MonoBehaviour {
 //            {
 //                Destroy(old.gameObject);
 //            }
+//            Destroy(candies[x, y].gameObject);
             candies[x, y] = create;
         }
 
@@ -533,7 +612,6 @@ public class GameManager : MonoBehaviour {
 
     public void UpdateCandyPositionInMap(CandyObject o, int x, int y)
     {
-
 //        Debug.Log("UpdateCandyPositionInMap x = " + x + "  y=" + y);
 //        Debug.Log("UpdateCandyPositionInMap x = " + o.X + "  y=" + o.Y);
 //        Destroy(candies[x, y].gameObject);
@@ -554,10 +632,21 @@ public class GameManager : MonoBehaviour {
             int tempX = o1.X;
             int tempY = o1.Y;
             
-            o1.CandyMoved.MoveTo(o2.X, o2.Y, fillTime);
-            
+            o1.CandyMoved.MoveTo(o2.X, o2.Y, fillTime);  
             o2.CandyMoved.MoveTo(tempX, tempY, fillTime);
-            BoomAllSameCandy();
+            
+            if (MatchCandies(o1) != null && MatchCandies(o2) != null) //移动时可以触发消除
+            {
+                
+            }
+            else
+            {
+                //无法触发消除
+                
+            }
+            
+            ClearAllMatchedCandies();
+            StartCoroutine(FillAll());
 
         }
     }
