@@ -293,9 +293,9 @@ public class GameManager : MonoBehaviour {
 
     public bool ClearCandy(CandyObject candy)
     {
-        if (candy.HasClear() && !candy.Clear.IsClearing)
+        if (candy.HasClear() && !candy.Clean.IsClearing)
         {
-            candy.Clear.Clear();
+            candy.Clean.Cleanup();
             CreateEmptyCandy(candy.X, candy.Y);
 //            Debug.Log("Clear true");
             return true;

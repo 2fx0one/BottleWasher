@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class CandyClear : MonoBehaviour {
+public class CandyClean : MonoBehaviour {
 	public AnimationClip clearAnimation;
 
 	private bool isClearing;
@@ -16,7 +16,7 @@ public class CandyClear : MonoBehaviour {
 		}
 	}
 
-	public virtual void Clear()
+	public virtual void Cleanup()
 	{
 		isClearing = true;
 		StartCoroutine(ClearCoroutine());
