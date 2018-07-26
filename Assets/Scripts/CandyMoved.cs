@@ -53,7 +53,7 @@ public class CandyMoved : MonoBehaviour
     {
 //        Debug.Log("MoveTo x = " + x + "  y=" + y);
         //逻辑更新 地图上的位置
-        GameManager.Instance.UpdateCandyPositionInMap(_candyObject, x, y);
+        GameManager.Inst.UpdateCandyPositionInMap(_candyObject, x, y);
 
         //开始动画
         if (moveCoroutine != null)
@@ -70,7 +70,7 @@ public class CandyMoved : MonoBehaviour
     {
         //动画处理
         Vector3 startPosition = transform.position;
-        Vector3 endPosition = GameManager.Instance.CorrectPostion(x, y);
+        Vector3 endPosition = GameManager.Inst.CorrectPostion(x, y);
 
         for (float t = 0; t < time; t += Time.deltaTime)
         {
@@ -79,7 +79,7 @@ public class CandyMoved : MonoBehaviour
             yield return 0; //每帧
         }
         //保证位置一定对。
-        _candyObject.transform.position = GameManager.Instance.CorrectPostion(x, y);
+        _candyObject.transform.position = GameManager.Inst.CorrectPostion(x, y);
     }
 
 
