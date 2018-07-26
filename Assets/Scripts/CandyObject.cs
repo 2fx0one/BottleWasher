@@ -42,11 +42,11 @@ public class CandyObject : MonoBehaviour
 	public GameManager _gameManager;
 
 
-	private CandyMoved _candyMoved;
+	private CandyMoved _movement;
 
-	public CandyMoved CandyMoved
+	public CandyMoved Movement
 	{
-		get { return _candyMoved; }
+		get { return _movement; }
 	}
 
 	private CandyCategory _category;
@@ -65,7 +65,7 @@ public class CandyObject : MonoBehaviour
 	
 	private void Awake()
 	{
-        _candyMoved = GetComponent<CandyMoved>();
+        _movement = GetComponent<CandyMoved>();
 		_category = GetComponent<CandyCategory>();
 		_clear = GetComponent<CandyClear>();
 	}
@@ -73,7 +73,7 @@ public class CandyObject : MonoBehaviour
 	
 	public bool HasMove()
 	{
-        return _candyMoved != null;
+        return _movement != null;
 	}
 	public bool HasCategroy()
 	{

@@ -58,7 +58,7 @@ public class GameManager : MonoBehaviour {
     //糖果状态
     public enum CandyType //基础分类
     {
-        EMPTY,
+        EMPTY_SLOT,
         NORMAL,
         BARRIER,
         ROW_CLEAR,
@@ -79,7 +79,8 @@ public class GameManager : MonoBehaviour {
 
     public CandyPrefab[] CandyPrefabs;
 
-    private CandyObject[,] candies; //二维数组
+    private CandyObject[,] candiesInMap; //二维数组 地图中的糖果
+//    private CandyObject[] candiesInSky; //一维数组 天空中的糖果
 
     public float fillTime;
 
@@ -123,18 +124,23 @@ public class GameManager : MonoBehaviour {
         }
 		
         //candy init
-        candies = new CandyObject[xCol, yRow+1];  //+1 天空中一排的位置
+        candiesInMap = new CandyObject[xCol, yRow];
+//        candiesInSky = new CandyObject[xCol];  // 天空中一排的位置
         for (int x = 0; x < xCol; x++)
         {
             for (int y = 0; y < yRow; y++)
             {
-                CreateCandy(x, y, CandyType.EMPTY);
+                CreateEmptyCandy(x, y);
             }
 			
         }
-        
-        CreateCandy(0, 0, CandyType.BARRIER);
-        CreateCandy(9, 10, CandyType.BARRIER);
+
+        for (int i = 1; i < 9; i++) 
+        {
+            CreateBarrierCandy(i, 4);
+            
+        }
+//        CreateBarrierCandy(9, 4);
         
 //        CreateCandy(0, 4, CandyType.BARRIER);
 //        CreateCandy(1, 4, CandyType.BARRIER);
@@ -169,6 +175,7 @@ public class GameManager : MonoBehaviour {
             }
             yield return new WaitForSeconds(fillTime);
             needRefill = ClearAllMatchedCandies();
+            Debug.Log(" ==== needRefill ==== " + needRefill);
             
         }
         Debug.Log("FillAll");
@@ -188,7 +195,7 @@ public class GameManager : MonoBehaviour {
     public bool ClearAllMatchedCandies()
     {
         bool needRefill = false;
-        foreach (CandyObject current in candies)
+        foreach (CandyObject current in candiesInMap)
         {
             List<CandyObject> matchCandies = MatchCandies(current);
             if (matchCandies != null)
@@ -202,32 +209,11 @@ public class GameManager : MonoBehaviour {
                 }
             }
         }
+        Debug.Log("ClearAllMatchedCandies " + needRefill);
         return needRefill;
     }
-
     
-//    public void BoomAllSameCandy()
-//    {
-//        
-//        //
-//        foreach (CandyObject candy in candies)
-//        {
-////            sameCandyList.Clear();
-////            boomList.Clear();
-////            Debug.Log("x= " + candy.X + "  y= " + candy.Y);
-////            FillSameItemsList(candy);
-////            MatchCandies(candy);
-////            Debug.Log(sameCandyList.Count);
-////            if (boomList.Count > 0)
-////            {
-////                foreach (var o in boomList)
-////                {
-////                    Destroy(o.gameObject);
-////                }
-////            }
-//        }
-//    }
-//    
+
     //填充相同Item列表
     public void FindSameCandyList(CandyObject current)
     {
@@ -242,10 +228,6 @@ public class GameManager : MonoBehaviour {
 //        Debug.Log(" Length = " + tempList.Length);
         foreach (CandyObject neighour in tempList)
         {
-//            if (neighour != null)
-//            {
-////                Debug.Log("a = " + o.Category + "  b= " + current.Category);
-//            }
             if (neighour != null && current.HasCategroy() && neighour.HasCategroy() && neighour.Category.Color.Equals(current.Category.Color))
             {
                 FindSameCandyList(neighour);
@@ -307,13 +289,7 @@ public class GameManager : MonoBehaviour {
             List<CandyObject> tempBoomList = new List<CandyObject> ();
             //转移到临时列表
             tempBoomList.AddRange (boomList);
-            //TODO 开启协同 删除
 
-//            StartCoroutine(DoBoomList(tempBoomList));
-//            foreach (var boomCandy in boomList)
-//            {
-//                ClearCandy(boomCandy);
-//            }
             return tempBoomList;
         }
 
@@ -326,34 +302,14 @@ public class GameManager : MonoBehaviour {
         if (candy.HasClear() && !candy.Clear.IsClearing)
         {
             candy.Clear.Clear();
-            CreateCandy(candy.X, candy.Y, CandyType.EMPTY);
+            CreateEmptyCandy(candy.X, candy.Y);
+//            Debug.Log("Clear true");
             return true;
         }
 
         return false;
     }
 
-//    IEnumerator DoBoomList(List<CandyObject> tempBoomList)
-//    {
-//        yield return new WaitForSeconds (0.5f);
-//        foreach (var boomCandy in tempBoomList)
-//        {
-//            Destroy(boomCandy.gameObject);
-//        }   
-//        yield return new WaitForSeconds (0.38f);
-//        FillFinished();
-//        Debug.Log("FillFinished() ");
-////        while (!FillFinished()) ;
-////        StartCoroutine(drop());
-//    }
-//
-//    private IEnumerator drop()
-//    {
-//        while (!FillFinished())
-//        {
-//            yield return new WaitForSeconds(fillTime);
-//        }
-//    }
 
     //分步填充
     public bool FillFinished()
@@ -368,19 +324,19 @@ public class GameManager : MonoBehaviour {
             bool rightCandyHasMoved = false; //水平方向上, 右边的已经移动过的标记
             for (int currentMapX = xCol-1; currentMapX >= 0; currentMapX--) // 水平方向  从右向左扫描 为了向右边推进!
             {
-                Debug.Log("x = " +  currentMapX + "  y=" + currentMapY);
+//                Debug.Log("x = " +  currentMapX + "  y=" + currentMapY);
                 //当前元素位置的对象
                 CandyObject currentCandy = CurrentCandyInMap(currentMapX, currentMapY);
                 //当前必须可以移动
                 if (currentCandy.HasMove())
                 {
-                    // Debug.Log("========currentCandy.HasMove()======== currentCandy.x = " + currentCandy.X + "  currentCandy.Y = " + currentCandy.Y);
+                    Debug.Log("========currentCandy.HasMove()========   " + currentCandy.CandyType + " x = " + currentCandy.X + "  Y = " + currentCandy.Y);
                     //正下方 必须是空的.才能移动过去
-                    CandyObject belowDirectly = DownCandy(currentCandy);
-                    if (belowDirectly != null && belowDirectly.CandyType == CandyType.EMPTY) //正下方 是空的
+                    CandyObject downCandy = DownCandy(currentCandy);
+                    if (downCandy != null && downCandy.CandyType == CandyType.EMPTY_SLOT) //正下方 是空的
 //                    if (BelowDirectly(currentMapX, currentMapY))
                     {
-                        currentCandy.CandyMoved.MoveToCandyAndReplace(belowDirectly, fillTime); //动画和基础组件上更新位置 且会覆盖原有位置
+                        currentCandy.Movement.MoveToCandyAndReplace(downCandy, fillTime); //动画和基础组件上更新位置 且会覆盖原有位置
                         CreateEmptyCandy(currentMapX, currentMapY); //创建空位
 
                         filledFinished = false; //填充未结束。还有空位
@@ -400,7 +356,7 @@ public class GameManager : MonoBehaviour {
                         {
                             if (CanFindBarrierAbove(candy))
                             {
-                                currentCandy.CandyMoved.MoveToCandyAndReplace(candy, fillTime);
+                                currentCandy.Movement.MoveToCandyAndReplace(candy, fillTime);
                                 CreateEmptyCandy(currentMapX, currentMapY);
 
                                 filledFinished = false;
@@ -413,13 +369,13 @@ public class GameManager : MonoBehaviour {
                         //下方不是空的时，
                         //检查左下和右下 向上查找 如果找到一个非空且不可移动的.那么就表示可以移动到改位置
 
-                        //右边 
+//                        //右边 
 //                        CandyObject right = RightCandy(currentCandy);
 //                    
 //                        if (CanFindBarrierAbove(right))
 //                        {
 ////                            Debug.Log("right  x= " + right.X + "  y=" + right.Y);
-//                            currentCandy.CandyMoved.MoveToCandyAndReplace(right, fillTime);
+//                            currentCandy.Movement.MoveToCandyAndReplace(right, fillTime);
 //                            CreateEmptyCandy(currentMapX, currentMapY);
 //
 //                            filledFinished = false;
@@ -432,7 +388,7 @@ public class GameManager : MonoBehaviour {
 //                        CandyObject belowRight = DownRightCandy(currentCandy);
 //                        if (CanFindBarrierAbove(belowRight))
 //                        {
-//                            currentCandy.CandyMoved.MoveToCandyAndReplace(belowRight, fillTime);
+//                            currentCandy.Movement.MoveToCandyAndReplace(belowRight, fillTime);
 //                            CreateEmptyCandy(currentMapX, currentMapY);
 //
 //                            filledFinished = false;
@@ -448,7 +404,7 @@ public class GameManager : MonoBehaviour {
 ////                            {
 ////                                Debug.Log("left xxx");
 ////                            }
-//                            currentCandy.CandyMoved.MoveToCandyAndReplace(left, fillTime);
+//                            currentCandy.Movement.MoveToCandyAndReplace(left, fillTime);
 //                            CreateEmptyCandy(currentMapX, currentMapY);
 //                            
 //                            filledFinished = false;
@@ -459,7 +415,7 @@ public class GameManager : MonoBehaviour {
 //                        CandyObject belowLeft = DownLeftCandy(currentCandy);
 //                        if (CanFindBarrierAbove(belowLeft))
 //                        {
-//                            currentCandy.CandyMoved.MoveToCandyAndReplace(belowLeft, fillTime);
+//                            currentCandy.Movement.MoveToCandyAndReplace(belowLeft, fillTime);
 //                            CreateEmptyCandy(currentMapX, currentMapY);
 //
 //                            filledFinished = false;
@@ -478,64 +434,118 @@ public class GameManager : MonoBehaviour {
 //		int y = -1;
         for (int x = 0; x < xCol; x++)
         {
-            int y = yRow-1; //yRow 表示天空 那一层
-            CandyObject emptyCandy = candies[x, y];
-			
-            if (emptyCandy.CandyType == CandyType.EMPTY)
+//            candiesInSky[x]
+            //查看下方是否有空位.
+            //    有的话就创建一个天空中的糖果 
+            //    然后下落
+            
+            CandyObject topCandy = candiesInMap[x, yRow-1]; //最上面的糖果
+            if (topCandy.CandyType == CandyType.EMPTY_SLOT) //如果是一个空槽 创建一个天空中的糖果 然后移动并替换下方
             {
-//                Destroy(emptyCandy.gameObject);
-                CandyObject fall = CreateCandy(x, yRow, CandyType.NORMAL); //yRow 表示天空 那一层
-                fall.CandyMoved.MoveTo(x, y, fillTime);
-//                fall.CandyMoved.MoveToCandyAndReplace(emptyCandy, fillTime);
-               
+                CandyObject skyCandy = CreateSkyCandy(x);
+//                skyCandy.Movement.MoveTo(topCandy.X, topCandy.Y, fillTime);
+                skyCandy.Movement.MoveToCandyAndReplace(topCandy, fillTime);
                 filledFinished = false;
             }
+			
+//            if (topCandy.CandyType == CandyType.EMPTY)
+//            {
+////                Destroy(emptyCandy.gameObject);
+//                CandyObject fall = CreateNormalCandy(x, yRow); //yRow 表示天空 那一层
+////                fall.CandyMoved.MoveTo(x, y, fillTime);
+//                fall.CandyMoved.MoveToCandyAndReplace(emptyCandy, fillTime);
+//               
+//                filledFinished = false;
+//            }
         }
         return filledFinished;
     }
 
 
+    //创建天空中的糖果 不需要放入数组
+//    public CandyObject CreateSkyCandy(int x, int y)
+    public CandyObject CreateSkyCandy(int x)
+    {
+//        yRow
+        CandyObject skyCandy = CreateCandy(x, yRow, CandyType.NORMAL);
+        
+        //最上层的天空中,需要随机设置颜色 且不要放到地图数组中! 后续让他移动进数组
+        ColorType colorType = (ColorType) Random.Range(0, this.NumColors);
+        skyCandy.Category.SetColor(colorType, colorSpriteDict[colorType]);
+        
+        return skyCandy;
+    } 
+    
+    //创建空位槽 在地图上创建, 需要放入数组
     public CandyObject CreateEmptyCandy(int x, int y)
     {
-        return CreateCandy(x, y, CandyType.EMPTY);
+        CandyObject emptyCandy = CreateCandy(x, y, CandyType.EMPTY_SLOT);
+        candiesInMap[x, y] = emptyCandy;
+        return emptyCandy;
+    }
+    
+    //创建一个普通的糖果 在地图上创建, 需要放入数组
+    public CandyObject CreateNormalCandy(int x, int y)
+    {
+        CandyObject normalCandy = CreateCandy(x, y, CandyType.NORMAL);
+        candiesInMap[x, y] = normalCandy;
+        return normalCandy;
+
+    }
+    
+    //创建一个阻挡 在地图上创建, 需要放入数组
+    public CandyObject CreateBarrierCandy(int x, int y)
+    {
+        //由于是在空白地图上创建阻挡, 之前位置上一定已经有空位槽类型的糖果了, 故需要删除之前的空位槽糖果!
+        CandyObject empty = CurrentCandyInMap(x, y);
+        if (empty != null)
+        {
+            Destroy(empty.gameObject);
+        }
+        
+        CandyObject barrierCandy = CreateCandy(x, y, CandyType.BARRIER);
+        Debug.Log("x = " + x + "  y=" + y);
+        candiesInMap[x, y] = barrierCandy;
+        return barrierCandy;
     }
 
     public CandyObject CreateCandy(int x, int y, CandyType type)
     {
-//        if (type == CandyType.BARRIER) //初始化的时候
-//        {
-//            
-//        }
-        GameObject candy = Instantiate(candyPrefabDict[type], CorrectPostion(x, y), Quaternion.identity);
+        GameObject obj = Instantiate(candyPrefabDict[type], CorrectPostion(x, y), Quaternion.identity);
         //设置父对象
-        candy.transform.parent = transform;
-        CandyObject create = candy.transform.GetComponent<CandyObject>();
+        obj.transform.parent = transform;
+        CandyObject create = obj.transform.GetComponent<CandyObject>();
         create.Init(x, y, this, type);
         
-        //放入二维数组
-        
-        //最上层的天空中,需要随机设置颜色 且不要放到地图数组中!
-        if (y == yRow)
-        {
-            ColorType colorType = (ColorType) Random.Range(0, this.NumColors);
-//            colorSpriteDict[colorType]
-//            if (create == null)
+//        //放入二维数组
+//        
+//        //最上层的天空中,需要随机设置颜色 且不要放到地图数组中! 后续让他移动进数组
+//        if (y == yRow)
+//        {
+//            ColorType colorType = (ColorType) Random.Range(0, this.NumColors);
+////            colorSpriteDict[colorType]
+////            if (create == null)
+////            {
+////                Debug.Log("xxx");
+////            }
+//            Debug.Log("x = " + x + "  y=" + y);
+//            if (create.HasCategroy())
 //            {
-//                Debug.Log("xxx");
+//                create.Category.SetColor(colorType, colorSpriteDict[colorType]);
+//                
 //            }
-            create.Category.SetColor(colorType, colorSpriteDict[colorType]);
-        }
-        else
-        {
-            //放到数组中 原来的需要删除了
-//            CandyObject old = candies[x, y];
-//            if (old != null)
-//            {
-//                Destroy(old.gameObject);
-//            }
-//            Destroy(candies[x, y].gameObject);
-            candies[x, y] = create;
-        }
+//        }
+//        else
+//        {
+//            //放到数组中 原来的需要删除了
+////            CandyObject old = candies[x, y];
+////            if (old != null)
+////            {
+////                Destroy(old.gameObject);
+////            }
+////            Destroy(candies[x, y].gameObject);
+//            candiesInMap[x, y] = create;
+//        }
 
         return create;
 
@@ -545,13 +555,12 @@ public class GameManager : MonoBehaviour {
     //当前地图位置中
     private CandyObject CurrentCandyInMap(int x, int y)
     {
-        if (0 <= x && x < xCol && 0 <= y && y<yRow)
+        if (0<=x && x<xCol && 0<=y && y<yRow)
         {
-            return candies[x, y];
+            return candiesInMap[x, y];
         }
         return null;
     }
-
     
     //上
     private CandyObject UpCandy(CandyObject o)
@@ -593,21 +602,20 @@ public class GameManager : MonoBehaviour {
     //从该糖果坐标 向上查找,找到一个Barrier 阻挡类型的
     private bool CanFindBarrierAbove(CandyObject currentCandy)
     {
-        if (currentCandy != null && currentCandy.CandyType == CandyType.EMPTY)
+        if (currentCandy != null && currentCandy.CandyType == CandyType.EMPTY_SLOT)
         {
-            int x = currentCandy.X;
-            int y = currentCandy.Y;
-            for (int aboveY = 0; aboveY < y; aboveY++)
+//            int x = currentCandy.X;
+//            int y = currentCandy.Y;
+            for (int aboveY = currentCandy.Y; aboveY < yRow; aboveY++)
             {
                 //向上遍历
-                CandyObject candyAbove = candies[x, aboveY];          
+                CandyObject candyAbove = CurrentCandyInMap(currentCandy.X, aboveY);// candiesInMap[x, aboveY];          
                 if (candyAbove.CandyType == CandyType.BARRIER)
                 {
                     return true;
                 }
             }
         }
-
         return false;
     }
     
@@ -627,7 +635,7 @@ public class GameManager : MonoBehaviour {
 //        Debug.Log("UpdateCandyPositionInMap x = " + x + "  y=" + y);
 //        Debug.Log("UpdateCandyPositionInMap x = " + o.X + "  y=" + o.Y);
 //        Destroy(candies[x, y].gameObject);
-        candies[x, y] = o;
+        candiesInMap[x, y] = o;
         o.X = x;
         o.Y = y;
     }
@@ -644,8 +652,8 @@ public class GameManager : MonoBehaviour {
             int tempX = o1.X;
             int tempY = o1.Y;
             
-            o1.CandyMoved.MoveTo(o2.X, o2.Y, fillTime);  
-            o2.CandyMoved.MoveTo(tempX, tempY, fillTime);
+            o1.Movement.MoveTo(o2.X, o2.Y, fillTime);  
+            o2.Movement.MoveTo(tempX, tempY, fillTime);
             
             if (MatchCandies(o1) != null && MatchCandies(o2) != null) //移动时可以触发消除
             {
@@ -663,22 +671,22 @@ public class GameManager : MonoBehaviour {
         }
     }
 
-//逻辑移动 在 位置数组中移动
-    private void LogicExchangeCandyObjectPositionInTiledMap(CandyObject o1, CandyObject o2)
-    {
-        candies[o1.X, o1.Y] = o2;
-        candies[o2.X, o2.Y] = o1;
-        
-//        int tempX = o1.X;
-//        int tempY = o1.Y;
-//        o1.X = o2.X;
-//        o1.Y = o2.Y;
-//        o2.X = tempX;
-//        o2.Y = tempY;
-
-
-
-    }
+////逻辑移动 在 位置数组中移动
+//    private void LogicExchangeCandyObjectPositionInTiledMap(CandyObject o1, CandyObject o2)
+//    {
+//        candies[o1.X, o1.Y] = o2;
+//        candies[o2.X, o2.Y] = o1;
+//        
+////        int tempX = o1.X;
+////        int tempY = o1.Y;
+////        o1.X = o2.X;
+////        o1.Y = o2.Y;
+////        o2.X = tempX;
+////        o2.Y = tempY;
+//
+//
+//
+//    }
 
     public void PressCandy(CandyObject o)
     {
