@@ -16,14 +16,15 @@ public class CandyClean : MonoBehaviour {
 		}
 	}
 
-	public virtual void Cleanup()
+	public virtual void Cleanup(float time)
 	{
 		isClearing = true;
-		StartCoroutine(ClearCoroutine());
+		StartCoroutine(ClearCoroutine(time));
 	}
 
-	private IEnumerator ClearCoroutine()
+	private IEnumerator ClearCoroutine(float time)
 	{
+		yield return new WaitForSeconds(time * 3);
 		Animator animator = GetComponent<Animator>();
 
 		if (animator!=null)

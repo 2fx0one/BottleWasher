@@ -1,9 +1,8 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
-using System.IO.IsolatedStorage;
-using System.Runtime.CompilerServices;
-using System.Xml.Linq;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 public class GameManager : MonoBehaviour {
     private static GameManager _inst;
@@ -34,7 +33,7 @@ public class GameManager : MonoBehaviour {
         COUNT
     }
 
-    [System.Serializable]
+    [Serializable]
     public struct ColorSprite
     {
         public ColorType color;
@@ -65,7 +64,7 @@ public class GameManager : MonoBehaviour {
     public Dictionary<CandyType, GameObject> candyPrefabDict;
 
    
-    [System.Serializable]
+    [Serializable]
     public struct CandyPrefab
     {
         public CandyType candyType;
@@ -119,21 +118,20 @@ public class GameManager : MonoBehaviour {
 		
         //candy init
         candiesInMap = new CandyObject[xCol, yRow];
-//        candiesInSky = new CandyObject[xCol];  // 天空中一排的位置
+        
         for (int x = 0; x < xCol; x++)
         {
             for (int y = 0; y < yRow; y++)
             {
                 CreateEmptyCandy(x, y);
             }
-			
         }
 
-        for (int i = 1; i < 9; i++) 
-        {
-            CreateBarrierCandy(i, 4);
-            
-        }
+//        for (int i = 1; i < 9; i++) 
+//        {
+//            CreateBarrierCandy(i, 4);
+//            
+//        }
 //        CreateBarrierCandy(9, 4);
         
 //        CreateCandy(0, 4, CandyType.BARRIER);
@@ -149,20 +147,19 @@ public class GameManager : MonoBehaviour {
     }
     void Start () 
     {
-
         InitGame();
         StartCoroutine(FillAll());
-        
-
     }
-
 
     public IEnumerator FillAll()
     {
+//        yield return new WaitForSeconds(fillTime);
+//        yield return new WaitForSeconds(fillTime);
+//        yield return new WaitForSeconds(fillTime);
         bool needRefill = true;
         while (needRefill)
         {
-            yield return new WaitForSeconds(fillTime);
+            yield return new WaitForSeconds(fillTime*3);
             while (!FillFinished())
             {
                 yield return new WaitForSeconds(fillTime);
@@ -173,11 +170,6 @@ public class GameManager : MonoBehaviour {
             
         }
         Debug.Log("FillAll");
-//        
-        
-
-        
-
     }
 
     //相同candy列表
@@ -194,7 +186,7 @@ public class GameManager : MonoBehaviour {
             List<CandyObject> matchCandies = MatchCandies(current);
             if (matchCandies != null)
             {
-                foreach (var matchCandy in matchCandies)
+                foreach (CandyObject matchCandy in matchCandies)
                 {
                     if (ClearCandy(matchCandy))
                     {
@@ -211,20 +203,16 @@ public class GameManager : MonoBehaviour {
     //填充相同Item列表
     public void FindSameCandyList(CandyObject current)
     {
-        if (this.sameCandyList.Contains(current))
+        if (!sameCandyList.Contains(current))
         {
-            return;
-        }
-        
-        this.sameCandyList.Add(current);
-        CandyObject[] tempList = 
-            {UpCandy(current), DownCandy(current), RightCandy(current), LeftCandy(current) };
-//        Debug.Log(" Length = " + tempList.Length);
-        foreach (CandyObject neighour in tempList)
-        {
-            if (neighour != null && current.HasCategroy() && neighour.HasCategroy() && neighour.Category.Color.Equals(current.Category.Color))
+            sameCandyList.Add(current);
+            CandyObject[] aroundCandies = {UpCandy(current), DownCandy(current), RightCandy(current), LeftCandy(current) };
+            foreach (CandyObject around in aroundCandies)
             {
-                FindSameCandyList(neighour);
+                if (around != null && current.HasCategroy() && around.HasCategroy() && around.Category.Color.Equals(current.Category.Color))
+                {
+                    FindSameCandyList(around);
+                }
             }
         }
     }
@@ -232,8 +220,8 @@ public class GameManager : MonoBehaviour {
     //匹配方法
     public List<CandyObject> MatchCandies(CandyObject current)
     {
-        this.sameCandyList.Clear();
-        this.boomList.Clear();
+        sameCandyList.Clear();
+        boomList.Clear();
 //            Debug.Log("x= " + candy.X + "  y= " + candy.Y);
         FindSameCandyList(current);
         //计数器
@@ -245,7 +233,7 @@ public class GameManager : MonoBehaviour {
 
         int currentX = current.X;
         int currentY = current.Y;
-        foreach (CandyObject sameCandy in this.sameCandyList) //颜色相同 包含自己
+        foreach (CandyObject sameCandy in sameCandyList) //颜色相同 包含自己, 且是以自己为基准的
         {
             //如果在同一行 
             if (currentY == sameCandy.Y)
@@ -260,11 +248,11 @@ public class GameManager : MonoBehaviour {
             }
         }
         
-        //是否有水平消除
+        
         bool horizontalBoom = false;
         if (rowTempList.Count >= 3)
         {
-            this.boomList.AddRange(rowTempList);
+            boomList.AddRange(rowTempList);
             horizontalBoom = true;
         }
 
@@ -272,9 +260,10 @@ public class GameManager : MonoBehaviour {
         {
             if (horizontalBoom)
             {
-                boomList.Remove(current);
+                //当存在有水平消除 需要删除重复添加的对象.
+                boomList.Remove(current); 
             }
-            this.boomList.AddRange(columnTempList);
+            boomList.AddRange(columnTempList);
         }
 
         if (boomList.Count != 0)
@@ -295,7 +284,7 @@ public class GameManager : MonoBehaviour {
     {
         if (candy.HasClear() && !candy.Clean.IsClearing)
         {
-            candy.Clean.Cleanup();
+            candy.Clean.Cleanup(fillTime);
             CreateEmptyCandy(candy.X, candy.Y);
 //            Debug.Log("Clear true");
             return true;
@@ -453,7 +442,7 @@ public class GameManager : MonoBehaviour {
         CandyObject skyCandy = CreateCandy(x, yRow, CandyType.NORMAL);
         
         //最上层的天空中,需要随机设置颜色 且不要放到地图数组中! 后续让他移动进数组
-        ColorType colorType = (ColorType) Random.Range(0, this.NumColors);
+        ColorType colorType = (ColorType) Random.Range(0, NumColors);
         skyCandy.Category.SetColor(colorType, colorSpriteDict[colorType]);
         
         return skyCandy;
@@ -573,14 +562,10 @@ public class GameManager : MonoBehaviour {
     
     
     public Vector3 CorrectPostion(int x, int y) {
-        return new Vector3(this.transform.position.x - this.xCol * 0.5f + x, this.transform.position.y - yRow * 0.5f + y);
+        return new Vector3(transform.position.x - xCol * 0.5f + x, transform.position.y - yRow * 0.5f + y);
     }
 
-    private bool IsNeighbour(CandyObject o1, CandyObject o2)
-    {
-        return o1.X == o2.X && Mathf.Abs(o1.Y - o2.Y) == 1 ||
-               o1.Y == o2.Y && Mathf.Abs(o1.X - o2.X) == 1;
-    }
+
 
     public void UpdateCandyPositionInMap(CandyObject o, int x, int y)
     {
@@ -589,34 +574,46 @@ public class GameManager : MonoBehaviour {
         o.Y = y;
     }
     
-    private void ExchangeCandyObjectPosition(CandyObject c1, CandyObject c2)
+    private void ExchangeCandyObjectPosition(CandyObject a, CandyObject b)
     {
-        if (c1.HasMove() && c2.HasMove())
+        if (a.HasMove() && b.HasMove())
         {
 
 
-            int c1x = c1.X;
-            int c1y = c1.Y;
+            int ax = a.X;
+            int ay = a.Y;
             
-            int c2x = c2.X;
-            int c2y = c2.Y;
+            int bx = b.X;
+            int by = b.Y;
             
-            c1.Movement.MoveTo(c2x, c2y, fillTime);  
-            c2.Movement.MoveTo(c1x, c1y, fillTime);
+//            c1.Movement.MoveTo(c2x, c2y, fillTime);  
+//            c2.Movement.MoveTo(c1x, c1y, fillTime);
+//            逻辑地图坐标 和 基础组件坐标 更新
             
-            if (MatchCandies(c1) != null || MatchCandies(c2) != null) //移动后可以触发消除
+            UpdateCandyPositionInMap(a, bx, by);
+            UpdateCandyPositionInMap(b, ax, by);
+            
+            if (MatchCandies(a) != null || MatchCandies(b) != null) //移动后可以触发消除
             {
+                a.Movement.MoveTo(bx, by, fillTime);  
+                b.Movement.MoveTo(ax, ay, fillTime);
                 ClearAllMatchedCandies();
                 StartCoroutine(FillAll());
+                pressedCandy = null;
+                enteredCandy = null;
             }
             else
             {
-                //无法触发消除
-//                c2.Movement.MoveTo(c2x, c2y, fillTime);  
-//                c1.Movement.MoveTo(c1x, c1y, fillTime);
+                //逻辑上移回去!
+//                c1.Movement.MoveTo(c1x, c1y, fillTime); 
+//                c2.Movement.MoveTo(c2x, c2y, fillTime);
+                UpdateCandyPositionInMap(a, ax, ay);
+                UpdateCandyPositionInMap(b, bx, by);
                 
+                Debug.Log("动画上 移回去!");
+                a.Movement.MoveToAndReturn(bx, by, fillTime);  
+                b.Movement.MoveToAndReturn(ax, ay, fillTime);
             }
-
         }
     }
 
@@ -633,9 +630,15 @@ public class GameManager : MonoBehaviour {
 
     public void ReleaseCandy()
     {
-        if (IsNeighbour(pressedCandy, enteredCandy))
+        //相邻 且 不同色
+        if (IsNeighbour(pressedCandy, enteredCandy) && pressedCandy.Category.Color != enteredCandy.Category.Color)
         {
             ExchangeCandyObjectPosition(pressedCandy, enteredCandy);
         }
+    }
+    private bool IsNeighbour(CandyObject o1, CandyObject o2)
+    {
+        return o1.X == o2.X && Mathf.Abs(o1.Y - o2.Y) == 1 ||
+               o1.Y == o2.Y && Mathf.Abs(o1.X - o2.X) == 1;
     }
 }

@@ -140,8 +140,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 61a534338d28b4af388df0bfbf595c7e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  xCol: 10
-  yRow: 10
+  xCol: 11
+  yRow: 9
   gridPrefab: {fileID: 1077399149597078, guid: 1ee782f1a29324c2f8ea4b908e57cec2, type: 2}
   colorSprites:
   - color: 0

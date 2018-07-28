@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using UnityEngine;
 
 public class CandyObject : MonoBehaviour
@@ -99,7 +100,7 @@ public class CandyObject : MonoBehaviour
 
 	private void OnMouseEnter()
 	{
-		Debug.Log("OnMouseEnter");
+		Debug.Log("OnMouseEnter  x = "+ _x + "   y = " + _y);
 		GameManager.Inst.EnteredCandy(this);
 //		throw new System.NotImplementedException();
 	}
@@ -107,14 +108,14 @@ public class CandyObject : MonoBehaviour
 	private void OnMouseDown()
 	{
 //		Destroy(this.gameObject);
-		Debug.Log("OnMouseDown");
+		Debug.Log("OnMouseDown x = " + _x + "   y = " + _y);
 		GameManager.Inst.PressCandy(this);
 //		throw new System.NotImplementedException();
 	}
 
 	private void OnMouseUp()
 	{
-		Debug.Log("OnMouseUp");
+		Debug.Log("OnMouseUp UpUpUp x = "+ _x + "   y = " + _y);
 		GameManager.Inst.ReleaseCandy();
 //		throw new System.NotImplementedException();
 	}
