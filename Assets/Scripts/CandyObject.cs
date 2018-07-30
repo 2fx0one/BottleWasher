@@ -8,6 +8,8 @@ public class CandyObject : MonoBehaviour
 //	private CandyPostion _postion;
 	
 	private int _x;
+
+
 	public int X
 	{
 		get { return _x; }
@@ -89,34 +91,29 @@ public class CandyObject : MonoBehaviour
 	
 	public void Init(int x, int y, GameManager.CandyType candyType)
 	{
-//		this._postion.X = x;
-//		this._postion.Y = y;
 		this._x = x;
 		this._y = y;
-//		this._gameManager = gameManager;
 		this._candyType = candyType;
 	}
 	
 
 	private void OnMouseEnter()
 	{
-		Debug.Log("OnMouseEnter  x = "+ _x + "   y = " + _y);
+//		Debug.Log("OnMouseEnter  x = "+ _x + "   y = " + _y);
 		GameManager.Inst.EnteredCandy(this);
-//		throw new System.NotImplementedException();
 	}
 	
 	private void OnMouseDown()
 	{
 //		Destroy(this.gameObject);
-		Debug.Log("OnMouseDown x = " + _x + "   y = " + _y);
+//		Debug.Log("OnMouseDown x = " + _x + "   y = " + _y);
 		GameManager.Inst.PressCandy(this);
-//		throw new System.NotImplementedException();
 	}
 
-	private void OnMouseUp()
-	{
-		Debug.Log("OnMouseUp UpUpUp x = "+ _x + "   y = " + _y);
-		GameManager.Inst.ReleaseCandy();
+//	private void OnMouseUp()
+//	{
+//		Debug.Log("OnMouseUp UpUpUp x = "+ _x + "   y = " + _y);
+//		GameManager.Inst.ReleaseCandy();
 //		throw new System.NotImplementedException();
-	}
+//	}
 }

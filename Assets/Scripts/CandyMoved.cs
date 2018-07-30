@@ -57,7 +57,7 @@ public class CandyMoved : MonoBehaviour
             StopCoroutine(moveCoroutine);
         }
 
-        moveCoroutine = MoveCoroutine(x, y, time);
+        moveCoroutine = MoveCoroutine(x, y, time*2);
         StartCoroutine(moveCoroutine);
     }
 
@@ -90,7 +90,7 @@ public class CandyMoved : MonoBehaviour
             StopCoroutine(moveCoroutine);
         }
 
-        moveCoroutine = MoveAndReturnCoroutine(x, y, time);
+        moveCoroutine = MoveAndReturnCoroutine(x, y, time*2);
         StartCoroutine(moveCoroutine);
     }
 
@@ -104,15 +104,17 @@ public class CandyMoved : MonoBehaviour
         for (float t = 0; t < time; t += Time.deltaTime)
         {
             transform.position = Vector3.Lerp(startPosition, endPosition, t / time );
-            yield return 0;
+            yield return new WaitForEndOfFrame();
         }
         
-        yield return new WaitForSeconds(0.3f);
+        transform.position = endPosition; //回到开始位置
+        
+        yield return new WaitForSeconds(time);
         //返回
         for (float t = 0; t < time; t += Time.deltaTime)
         {
             transform.position = Vector3.Lerp(endPosition, startPosition, t / time );
-            yield return 0;
+            yield return new WaitForEndOfFrame();
         }
         
         //保证位置一定对。

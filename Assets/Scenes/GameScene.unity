@@ -140,22 +140,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 61a534338d28b4af388df0bfbf595c7e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  xCol: 13
+  xCol: 11
   yRow: 9
   gridPrefab: {fileID: 1077399149597078, guid: 1ee782f1a29324c2f8ea4b908e57cec2, type: 2}
   colorSprites:
   - color: 0
     sprite: {fileID: 21300000, guid: 13f061674f19a49c29b438673c6df30f, type: 3}
   - color: 1
-    sprite: {fileID: 21300000, guid: 3ab815d38e2ba4e25aa5aa7a1f7319bf, type: 3}
+    sprite: {fileID: 21300000, guid: ae96cf4db1ca64367a33140bc048cbb6, type: 3}
   - color: 2
     sprite: {fileID: 21300000, guid: 12fb008131bff45679e887341a59ec1e, type: 3}
   - color: 3
     sprite: {fileID: 21300000, guid: 478b6a2df12e64adf871e119b6a3415c, type: 3}
   - color: 4
     sprite: {fileID: 21300000, guid: db137c9538dea4d5c8934dc6db2b981f, type: 3}
-  - color: 5
-    sprite: {fileID: 21300000, guid: ae96cf4db1ca64367a33140bc048cbb6, type: 3}
   CandyPrefabs:
   - candyType: 0
     prefab: {fileID: 1393796430002650, guid: 14fa8a91a6331497499c73ff01ba94e1, type: 2}
@@ -163,6 +161,8 @@ MonoBehaviour:
     prefab: {fileID: 1085301231666860, guid: 41d48aa4af96349fab9e56af9b32fd5f, type: 2}
   - candyType: 2
     prefab: {fileID: 1708681370023176, guid: 62092c0c54db64afeb34fd7a91a6e682, type: 2}
+  - candyType: 5
+    prefab: {fileID: 1027207148342716, guid: 8cc5bfd49711944ccba326a25a004dd7, type: 2}
   fillTime: 0.1
   sameCandyList: []
   boomList: []
