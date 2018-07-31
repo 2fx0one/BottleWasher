@@ -178,25 +178,57 @@ public class GameManager : MonoBehaviour {
     //要消除的candy列表
     public List<CandyObject> boomList;
     
-    //三个相同的检测 并放入消除列表
+    //填充完成 三个相同的检测 并放入消除列表
     public bool ClearAllMatchedCandies()
     {
+//        List<CandyObject> filterList = new List<CandyObject>();
         bool needRefill = false;
-        foreach (CandyObject current in candiesInMap)
+        for (int y = yRow-1; y >=0; y--)
         {
-//            needRefill = CleanMatchedCandiesIn(current);
-            List<CandyObject> matchCandies = MatchCandies(current);
-            if (matchCandies != null)
+            for (int x = 0; x < xCol; x++)
             {
-                foreach (CandyObject matchCandy in matchCandies)
+                CandyObject current = candiesInMap[x, y];
+                
+//                if (filterList.Contains(current)) break;
+                
+                List<CandyObject> matchCandies = MatchCandies(current);
+                if (matchCandies != null)
                 {
-                    if (ClearCandy(matchCandy))
+                    if (matchCandies.Count == 4 || matchCandies.Count == 3)
                     {
-                        needRefill = true;
+                        Debug.Log(" matchCandies.Count ~~~~~~ 11 = " + matchCandies.Count);
+                        matchCandies.Remove(current);
+                        Debug.Log(" matchCandies.Count ~~~~~~ 22 = " + matchCandies.Count);
+                    }
+//                    filterList.AddRange(matchCandies);
+                    foreach (CandyObject matchCandy in matchCandies)
+                    {
+                        Debug.Log(" foreach  ======= ");
+                        if (ClearCandy(matchCandy))
+                        {
+                            needRefill = true;
+                        }
                     }
                 }
+
             }
+            
         }
+//        foreach (CandyObject current in candiesInMap)
+//        {
+////            needRefill = CleanMatchedCandiesIn(current);
+//            List<CandyObject> matchCandies = MatchCandies(current);
+//            if (matchCandies != null)
+//            {
+//                foreach (CandyObject matchCandy in matchCandies)
+//                {
+//                    if (ClearCandy(matchCandy))
+//                    {
+//                        needRefill = true;
+//                    }
+//                }
+//            }
+//        }
         Debug.Log("ClearAllMatchedCandies " + needRefill);
         return needRefill;
     }
@@ -272,21 +304,21 @@ public class GameManager : MonoBehaviour {
         if (rowTempList.Count == 5 )
         {
             //直线5个 变彩虹
-            Debug.Log("直线5个 变彩虹");
+//            Debug.Log("直线5个 变彩虹");
             boomList.AddRange(rowTempList);
 //            CreateRainbowCandy(current);
         }
         else if (columnTempList.Count == 5)
         {
             //直线5个 变彩虹
-            Debug.Log("直线5个 变彩虹");
+//            Debug.Log("直线5个 变彩虹");
             boomList.AddRange(columnTempList);
 //            CreateRainbowCandy(current);
             
         }
         else if (rowTempList.Count >= 3 && columnTempList.Count >= 3)
         {
-            Debug.Log("横竖都是3~4个 L 和 T , 总共5~6个 炸弹");
+//            Debug.Log("横竖都是3~4个 L 和 T , 总共5~6个 炸弹");
             //横竖都是3~4个 L 和 T , 总共5~6个 炸弹
             boomList.AddRange(rowTempList);
             boomList.Remove(current); //重复交错的地方
@@ -296,25 +328,25 @@ public class GameManager : MonoBehaviour {
         else if(rowTempList.Count == 4)
         {
             //直线4个 行火箭筒
-            Debug.Log("row 直线4个 行火箭筒");
+//            Debug.Log("row 直线4个 行火箭筒 x="+current.X + "  y="+current.Y);
             boomList.AddRange(rowTempList);
             
-            boomList.Remove(current);
+//            boomList.Remove(current);
             
-            TransfromToRainbowCandy(current);
+//            TransfromToRainbowCandy(current);
         }
         else if(columnTempList.Count == 4)
         {
             //直线4个 行火箭筒
-            Debug.Log("column直线4个 行火箭筒");
+//            Debug.Log("column 直线4个 行火箭筒 x="+current.X + "  y="+current.Y);
             boomList.AddRange(columnTempList);
             
-            boomList.Remove(current);
+//            boomList.Remove(current);
             
 //            ColorType colorType = ColorType.YELLOW
 //            current.Category.SetColor();
 //            skyCandy.Category.SetColor(colorType, colorSpriteDict[colorType]);
-            TransfromToRainbowCandy(current);
+//            TransfromToRainbowCandy(current);
         }
         else if (rowTempList.Count == 3)
         {
@@ -325,6 +357,10 @@ public class GameManager : MonoBehaviour {
         {
             //普通三个   
             boomList.AddRange(columnTempList);
+        }
+        else
+        {
+            return null;
         }
 //        }else if (rowTempList.Count == 2 && columnTempList.Count == 2 && sameCandyList.Count == 4)
 //        {
@@ -367,6 +403,7 @@ public class GameManager : MonoBehaviour {
     {
         if (candy.HasClear() && !candy.Clean.IsClearing)
         {
+//            candiesInMap[candy.X, candy.Y] = null;
             CreateEmptyCandy(candy.X, candy.Y);
             candy.Clean.Cleanup(fillTime);
 //            Debug.Log("Clear true");
@@ -562,16 +599,17 @@ public class GameManager : MonoBehaviour {
     
     
     //创建一个彩虹的糖果 在地图上创建, 需要放入数组
-    public static CandyObject TransfromToRainbowCandy(CandyObject current)
+    public CandyObject TransfromToRainbowCandy(CandyObject current)
     {
         //替换这个位置的糖果
         int x = current.X;
         int y = current.Y;
-        current.Init(x, y, CandyType.RAINBOWCANDY);
+//        current.Init(x, y, CandyType.RAINBOWCANDY);
 //        current.Category.SetColor();
-//        CandyObject rainbowCandy = CreateCandy(x, y, CandyType.RAINBOWCANDY);
-//        candiesInMap[x, y] = rainbowCandy;
-//        Destroy(current);
+        
+        Destroy(current);
+        CandyObject rainbowCandy = CreateCandy(x, y, CandyType.RAINBOWCANDY);
+        candiesInMap[x, y] = rainbowCandy;
         return current;
     }
     
@@ -684,11 +722,13 @@ public class GameManager : MonoBehaviour {
 //            c1.Movement.MoveTo(c2x, c2y, fillTime);  
 //            c2.Movement.MoveTo(c1x, c1y, fillTime);
 //            逻辑地图坐标 和 基础组件坐标 更新
-            
             UpdateCandyPositionInMap(a, bx, by);
             UpdateCandyPositionInMap(b, ax, by);
+
+            List<CandyObject> aMatchCandies = MatchCandies(a);
+            List<CandyObject> bMatchCandies = MatchCandies(b);
             
-            if (MatchCandies(a) != null || MatchCandies(b) != null) //移动后可以触发消除
+            if (aMatchCandies != null || bMatchCandies != null) //移动后可以触发消除
             {
                 a.Movement.MoveTo(bx, by, fillTime);  
                 b.Movement.MoveTo(ax, ay, fillTime);
