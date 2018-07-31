@@ -301,7 +301,7 @@ public class GameManager : MonoBehaviour {
             
             boomList.Remove(current);
             
-            CreateRainbowCandy(current);
+            TransfromToRainbowCandy(current);
         }
         else if(columnTempList.Count == 4)
         {
@@ -314,7 +314,7 @@ public class GameManager : MonoBehaviour {
 //            ColorType colorType = ColorType.YELLOW
 //            current.Category.SetColor();
 //            skyCandy.Category.SetColor(colorType, colorSpriteDict[colorType]);
-            CreateRainbowCandy(current);
+            TransfromToRainbowCandy(current);
         }
         else if (rowTempList.Count == 3)
         {
@@ -562,7 +562,7 @@ public class GameManager : MonoBehaviour {
     
     
     //创建一个彩虹的糖果 在地图上创建, 需要放入数组
-    public CandyObject CreateRainbowCandy(CandyObject current)
+    public static CandyObject TransfromToRainbowCandy(CandyObject current)
     {
         //替换这个位置的糖果
         int x = current.X;
