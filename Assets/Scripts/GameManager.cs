@@ -179,6 +179,10 @@ public class GameManager : MonoBehaviour {
     public List<CandyObject> boomList;
     
     //填充完成 三个相同的检测 并放入消除列表
+//    public bool ClearAllMatchedCandies(CandyObject current)
+//    {
+//        
+//    }
     public bool ClearAllMatchedCandies()
     {
 //        List<CandyObject> filterList = new List<CandyObject>();
@@ -188,28 +192,31 @@ public class GameManager : MonoBehaviour {
             for (int x = 0; x < xCol; x++)
             {
                 CandyObject current = candiesInMap[x, y];
-                
-//                if (filterList.Contains(current)) break;
-                
-                List<CandyObject> matchCandies = MatchCandies(current);
-                if (matchCandies != null)
+
+                if (current.CandyType == CandyType.NORMAL)
                 {
-                    if (matchCandies.Count == 4 || matchCandies.Count == 3)
-                    {
-                        Debug.Log(" matchCandies.Count ~~~~~~ 11 = " + matchCandies.Count);
-                        matchCandies.Remove(current);
-                        Debug.Log(" matchCandies.Count ~~~~~~ 22 = " + matchCandies.Count);
-                    }
-//                    filterList.AddRange(matchCandies);
-                    foreach (CandyObject matchCandy in matchCandies)
-                    {
-                        Debug.Log(" foreach  ======= ");
-                        if (ClearCandy(matchCandy))
-                        {
-                            needRefill = true;
-                        }
-                    }
+                    needRefill = CleanMatchedCandiesIn(current, needRefill);
                 }
+//                if (filterList.Contains(current)) break;
+//                List<CandyObject> matchCandies = MatchCandies(current);
+//                if (matchCandies != null)
+//                {
+//                    if (matchCandies.Count == 4 || matchCandies.Count == 3)
+//                    {
+//                        Debug.Log(" matchCandies.Count ~~~~~~ 11 = " + matchCandies.Count);
+//                        matchCandies.Remove(current);
+//                        Debug.Log(" matchCandies.Count ~~~~~~ 22 = " + matchCandies.Count);
+//                    }
+////                    filterList.AddRange(matchCandies);
+//                    foreach (CandyObject matchCandy in matchCandies)
+//                    {
+//                        Debug.Log(" foreach  ======= ");
+//                        if (ClearCandy(matchCandy))
+//                        {
+//                            needRefill = true;
+//                        }
+//                    }
+//                }
 
             }
             
@@ -233,12 +240,17 @@ public class GameManager : MonoBehaviour {
         return needRefill;
     }
 
-    public bool CleanMatchedCandiesIn(CandyObject current)
+    public bool CleanMatchedCandiesIn(CandyObject current, bool needRefill)
     {
-        bool needRefill = false;
+//        bool needRefill = false;
         List<CandyObject> matchCandies = MatchCandies(current);
         if (matchCandies != null)
         {
+            if (matchCandies.Count == 3)
+            {
+                matchCandies.Remove(current);
+                TransfromToRainbowCandy(current);
+            }
             foreach (CandyObject matchCandy in matchCandies)
             {
                 if (ClearCandy(matchCandy))
@@ -276,6 +288,7 @@ public class GameManager : MonoBehaviour {
         sameCandyList.Clear();
         boomList.Clear();
 //            Debug.Log("x= " + candy.X + "  y= " + candy.Y);
+//        List<CandyObject> matchCandies = new List<CandyObject>();
         FindSameCandyList(current);
         //计数器
 //        int rowCount = 0;
@@ -606,11 +619,12 @@ public class GameManager : MonoBehaviour {
         int y = current.Y;
 //        current.Init(x, y, CandyType.RAINBOWCANDY);
 //        current.Category.SetColor();
-        
         Destroy(current);
+//        ColorType colorType = ColorType.YELLOW;
+//        current.Category.SetColor(colorType, colorSpriteDict[colorType]);
         CandyObject rainbowCandy = CreateCandy(x, y, CandyType.RAINBOWCANDY);
         candiesInMap[x, y] = rainbowCandy;
-        return current;
+        return rainbowCandy;
     }
     
 
@@ -732,8 +746,8 @@ public class GameManager : MonoBehaviour {
             {
                 a.Movement.MoveTo(bx, by, fillTime);  
                 b.Movement.MoveTo(ax, ay, fillTime);
-                CleanMatchedCandiesIn(a);
-                CleanMatchedCandiesIn(b);
+                CleanMatchedCandiesIn(a, true);
+                CleanMatchedCandiesIn(b, true);
                 StartCoroutine(FillAll());
             }
             else

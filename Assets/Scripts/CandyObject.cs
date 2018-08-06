@@ -99,14 +99,14 @@ public class CandyObject : MonoBehaviour
 
 	private void OnMouseEnter()
 	{
-//		Debug.Log("OnMouseEnter  x = "+ _x + "   y = " + _y);
+		Debug.Log("OnMouseEnter  x = "+ _x + "   y = " + _y);
 		GameManager.Inst.EnteredCandy(this);
 	}
 	
 	private void OnMouseDown()
 	{
 //		Destroy(this.gameObject);
-//		Debug.Log("OnMouseDown x = " + _x + "   y = " + _y);
+		Debug.Log("OnMouseDown x = " + _x + "   y = " + _y);
 		GameManager.Inst.PressCandy(this);
 	}
 
