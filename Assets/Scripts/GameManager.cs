@@ -246,11 +246,11 @@ public class GameManager : MonoBehaviour {
         List<CandyObject> matchCandies = MatchCandies(current);
         if (matchCandies != null)
         {
-            if (matchCandies.Count == 3)
-            {
-                matchCandies.Remove(current);
-                TransfromToRainbowCandy(current);
-            }
+//            if (matchCandies.Count == 3)
+//            {
+//                matchCandies.Remove(current);
+//                TransfromToRainbowCandy(current);
+//            }
             foreach (CandyObject matchCandy in matchCandies)
             {
                 if (ClearCandy(matchCandy))
